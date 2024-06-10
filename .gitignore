@@ -7,6 +7,10 @@ target/
 *.iml
 .classpath
 .project
+.gradle/
+build/
+run/
+run-data/
 ForgeAnnoucements-1.0.0.jar
 ForgeAnnoucements-1.0.0/config.yml
 ForgeAnnoucements-1.0.0/META-INF/MANIFEST.MF
