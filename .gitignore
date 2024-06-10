@@ -1,0 +1,15 @@
+*.class
+lib/
+src/test/
+.settings/
+target/
+.idea/
+*.iml
+.classpath
+.project
+ForgeAnnoucements-1.0.0.jar
+ForgeAnnoucements-1.0.0/config.yml
+ForgeAnnoucements-1.0.0/META-INF/MANIFEST.MF
+ForgeAnnoucements-1.0.0/META-INF/maven/net.kaikk.mc/BetterChunkLoader/pom.properties
+ForgeAnnoucements-1.0.0/META-INF/maven/net.kaikk.mc/BetterChunkLoader/pom.xml
+ForgeAnnoucements-1.0.0/plugin.yml
