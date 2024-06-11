@@ -23,26 +23,47 @@ public class ModConfigHandler {
     }
 
     public static class Config {
-        public final ForgeConfigSpec.BooleanValue enable;
+        public final ForgeConfigSpec.BooleanValue debugEnable;
+
+        public final ForgeConfigSpec.BooleanValue globalEnable;
         public final ForgeConfigSpec.BooleanValue headerAndFooter;
-        public final ForgeConfigSpec.IntValue interval;
+        public final ForgeConfigSpec.IntValue globalInterval;
         public final ForgeConfigSpec.ConfigValue<String> prefix;
         public final ForgeConfigSpec.ConfigValue<String> header;
         public final ForgeConfigSpec.ConfigValue<String> footer;
         public final ForgeConfigSpec.ConfigValue<String> sound;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> messages;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> globalMessages;
+
+        public final ForgeConfigSpec.BooleanValue actionbarEnable;
+        public final ForgeConfigSpec.IntValue actionbarInterval;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> actionbarMessages;
+
+        public final ForgeConfigSpec.BooleanValue titleEnable;
+        public final ForgeConfigSpec.IntValue titleInterval;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> titleMessages;
+
+        public final ForgeConfigSpec.BooleanValue bossbarEnable;
+        public final ForgeConfigSpec.IntValue bossbarInterval;
+        public final ForgeConfigSpec.ConfigValue<String> bossbarColor;
+        public final ForgeConfigSpec.IntValue bossbarTime;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> bossbarMessages;
 
         public Config(ForgeConfigSpec.Builder builder) {
+
+            debugEnable = builder.comment("Enable debug logging")
+                    .define("Debug.Enable", false);
+
             builder.comment("Auto Broadcast Settings")
                     .push("Auto_Broadcast");
 
-            enable = builder.comment("Enable auto broadcast")
+            // Global Messages
+            globalEnable = builder.comment("Enable global messages")
                     .define("Global_Messages.Enable", true);
 
             headerAndFooter = builder.comment("Enable header and footer")
                     .define("Global_Messages.Header_And_Footer", true);
 
-            interval = builder.comment("Interval in seconds")
+            globalInterval = builder.comment("Interval in seconds for global messages")
                     .defineInRange("Global_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
 
             prefix = builder.comment("Prefix for messages")
@@ -57,10 +78,58 @@ public class ModConfigHandler {
             sound = builder.comment("Sound to play")
                     .define("Global_Messages.Sound", "");
 
-            messages = builder.comment("Messages to broadcast")
+            globalMessages = builder.comment("Global messages to broadcast")
                     .defineList("Global_Messages.Messages",
                             List.of(
-                                    "{Prefix} §7Website: https://link/."
+                                    "{Prefix} §7This is global message with link: https://link/."
+                            ),
+                            obj -> obj instanceof String);
+
+            // Actionbar Messages
+            actionbarEnable = builder.comment("Enable actionbar messages")
+                    .define("Actionbar_Messages.Enable", true);
+
+            actionbarInterval = builder.comment("Interval in seconds for actionbar messages")
+                    .defineInRange("Actionbar_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
+
+            actionbarMessages = builder.comment("Actionbar messages to broadcast")
+                    .defineList("Actionbar_Messages.Messages",
+                            List.of(
+                                    "{Prefix} §7This is an actionbar message."
+                            ),
+                            obj -> obj instanceof String);
+
+            // Title Messages
+            titleEnable = builder.comment("Enable title messages")
+                    .define("Title_Messages.Enable", true);
+
+            titleInterval = builder.comment("Interval in seconds for title messages")
+                    .defineInRange("Title_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
+
+            titleMessages = builder.comment("Title messages to broadcast")
+                    .defineList("Title_Messages.Messages",
+                            List.of(
+                                    "{Prefix} §7This is a title message."
+                            ),
+                            obj -> obj instanceof String);
+
+            // Bossbar Messages
+            bossbarEnable = builder.comment("Enable bossbar messages")
+                    .define("Bossbar_Messages.Enable", true);
+
+            bossbarInterval = builder.comment("Interval in seconds for bossbar messages")
+                    .defineInRange("Bossbar_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
+
+            bossbarTime = builder.comment("How long the bossbar stays on for (seconds)")
+                    .defineInRange("Bossbar.Bar_Time", 10, 1, Integer.MAX_VALUE);
+
+            bossbarColor = builder.comment("Color of the bossbar")
+                    .define("Bossbar_Messages.Color", "PURPLE");
+
+            bossbarMessages = builder.comment("Bossbar messages to broadcast")
+                    .defineList("Bossbar_Messages.Messages",
+                            List.of(
+                                    "{Prefix} §7This is a bossbar message."
                             ),
                             obj -> obj instanceof String);
 
@@ -69,22 +138,26 @@ public class ModConfigHandler {
     }
 
     public static void loadConfig(ForgeConfigSpec config, String path) {
-        LOGGER.info("Loading configuration from file: {}", path);
-        try {
-            final CommentedFileConfig file = CommentedFileConfig.builder(path)
-                    .sync()
-                    .autosave()
-                    .writingMode(com.electronwill.nightconfig.core.io.WritingMode.REPLACE)
-                    .build();
-            file.load();
-            config.setConfig(file);
-            LOGGER.info("Configuration loaded successfully from file: {}", path);
-            LOGGER.info("Enable: {}", CONFIG.enable.get());
-            LOGGER.info("Interval: {}", CONFIG.interval.get());
-            LOGGER.info("Messages: {}", CONFIG.messages.get());
-        } catch (Exception e) {
-            LOGGER.error("Failed to load configuration from file: {}", path, e);
-            throw new RuntimeException("Configuration loading failed", e);
-        }
+        final CommentedFileConfig file = CommentedFileConfig.builder(path)
+                .sync()
+                .autosave()
+                .writingMode(com.electronwill.nightconfig.core.io.WritingMode.REPLACE)
+                .build();
+        file.load();
+        config.setConfig(file);
+        LOGGER.info("Configuration loaded from file: {}", path);
+        LOGGER.info("Global Enable: {}", CONFIG.globalEnable.get());
+        LOGGER.info("Global Interval: {}", CONFIG.globalInterval.get());
+        LOGGER.info("Global Messages: {}", CONFIG.globalMessages.get());
+        LOGGER.info("Actionbar Enable: {}", CONFIG.actionbarEnable.get());
+        LOGGER.info("Actionbar Interval: {}", CONFIG.actionbarInterval.get());
+        LOGGER.info("Actionbar Messages: {}", CONFIG.actionbarMessages.get());
+        LOGGER.info("Title Enable: {}", CONFIG.titleEnable.get());
+        LOGGER.info("Title Interval: {}", CONFIG.titleInterval.get());
+        LOGGER.info("Title Messages: {}", CONFIG.titleMessages.get());
+        LOGGER.info("Bossbar Enable: {}", CONFIG.bossbarEnable.get());
+        LOGGER.info("Bossbar Interval: {}", CONFIG.bossbarInterval.get());
+        LOGGER.info("Bossbar Bar Time: {}", CONFIG.bossbarTime.get());
+        LOGGER.info("Bossbar Messages: {}", CONFIG.bossbarMessages.get());
     }
 }

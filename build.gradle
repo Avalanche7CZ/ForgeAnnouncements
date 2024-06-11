@@ -65,6 +65,10 @@ repositories {
 
 }
 
+processResources {
+    expand(project.properties)
+}
+
 dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
