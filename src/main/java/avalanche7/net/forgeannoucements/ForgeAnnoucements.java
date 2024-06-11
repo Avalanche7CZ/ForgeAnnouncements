@@ -1,6 +1,7 @@
 package avalanche7.net.forgeannoucements;
 
-import com.mojang.logging.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -8,7 +9,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -17,7 +17,7 @@ import java.net.URL;
 @Mod("forgeannoucements")
 public class ForgeAnnoucements {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public ForgeAnnoucements() {
 
@@ -52,21 +52,19 @@ public class ForgeAnnoucements {
 
     private void setup(final FMLCommonSetupEvent event) {
 
-        String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
-        String displayName = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
-
         LOGGER.info("Forge Annoucements mod has been enabled.");
         LOGGER.info("=========================");
-        LOGGER.info(displayName);
-        LOGGER.info("Version " + version);
+        LOGGER.info("ForgeAnnoucements");
+        LOGGER.info("Version: 1.0.0");
         LOGGER.info("Author: Avalanche7CZ");
         LOGGER.info("=========================");
 
         UpdateChecker.checkForUpdates();
     }
 
-    public class UpdateChecker {
+    public static class UpdateChecker {
 
+        private static final Logger LOGGER = LogManager.getLogger();
         private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnoucements/main/version.txt";
         private static String CURRENT_VERSION;
 

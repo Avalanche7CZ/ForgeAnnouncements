@@ -4,9 +4,10 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = "forgeannoucements", bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -14,7 +15,7 @@ public class ModConfigHandler {
 
     public static final ForgeConfigSpec SERVER_CONFIG;
     public static final Config CONFIG;
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     static {
         final Pair<Config, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Config::new);
@@ -80,7 +81,7 @@ public class ModConfigHandler {
 
             globalMessages = builder.comment("Global messages to broadcast")
                     .defineList("Global_Messages.Messages",
-                            List.of(
+                            Arrays.asList(
                                     "{Prefix} §7This is global message with link: https://link/."
                             ),
                             obj -> obj instanceof String);
@@ -94,7 +95,7 @@ public class ModConfigHandler {
 
             actionbarMessages = builder.comment("Actionbar messages to broadcast")
                     .defineList("Actionbar_Messages.Messages",
-                            List.of(
+                            Arrays.asList(
                                     "{Prefix} §7This is an actionbar message."
                             ),
                             obj -> obj instanceof String);
@@ -108,7 +109,7 @@ public class ModConfigHandler {
 
             titleMessages = builder.comment("Title messages to broadcast")
                     .defineList("Title_Messages.Messages",
-                            List.of(
+                            Arrays.asList(
                                     "{Prefix} §7This is a title message."
                             ),
                             obj -> obj instanceof String);
@@ -128,7 +129,7 @@ public class ModConfigHandler {
 
             bossbarMessages = builder.comment("Bossbar messages to broadcast")
                     .defineList("Bossbar_Messages.Messages",
-                            List.of(
+                            Arrays.asList(
                                     "{Prefix} §7This is a bossbar message."
                             ),
                             obj -> obj instanceof String);

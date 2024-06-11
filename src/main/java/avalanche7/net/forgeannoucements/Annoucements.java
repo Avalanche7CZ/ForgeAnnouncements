@@ -1,18 +1,20 @@
 package avalanche7.net.forgeannoucements;
 
-import com.mojang.logging.LogUtils;
-import net.minecraft.network.chat.*;
-import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
-import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.play.server.SUpdateBossInfoPacket;
+import net.minecraft.network.play.server.STitlePacket;
+import net.minecraft.network.play.server.STitlePacket.Type;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerBossEvent;
-import net.minecraft.world.BossEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.world.BossInfo;
+import net.minecraft.world.server.ServerBossInfo;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.slf4j.Logger;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Random;
@@ -25,11 +27,11 @@ public class Annoucements {
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Random random = new Random();
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static MinecraftServer server;
 
     @SubscribeEvent
-    public static void onServerStarting(ServerStartingEvent event) {
+    public static void onServerStarting(FMLServerStartingEvent event) {
         server = event.getServer();
         LOGGER.info("Server is starting, scheduling announcements.");
         scheduleAnnouncements();
@@ -109,16 +111,17 @@ public class Annoucements {
             String footer = ModConfigHandler.CONFIG.footer.get();
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
-            MutableComponent message = createClickableMessage(messageText);
+            ITextComponent message = createClickableMessage(messageText);
 
+            PlayerList playerList = server.getPlayerList();
             if (ModConfigHandler.CONFIG.headerAndFooter.get()) {
-                server.getPlayerList().getPlayers().forEach(player -> {
+                playerList.getPlayers().forEach(player -> {
                     player.sendMessage(parseMessageWithColor(header), player.getUUID());
                     player.sendMessage(message, player.getUUID());
                     player.sendMessage(parseMessageWithColor(footer), player.getUUID());
                 });
             } else {
-                server.getPlayerList().getPlayers().forEach(player -> {
+                playerList.getPlayers().forEach(player -> {
                     player.sendMessage(message, player.getUUID());
                 });
             }
@@ -136,10 +139,11 @@ public class Annoucements {
             String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
-            MutableComponent message = parseMessageWithColor(messageText);
+            ITextComponent message = parseMessageWithColor(messageText);
 
-            server.getPlayerList().getPlayers().forEach(player -> {
-                player.connection.send(new ClientboundSetActionBarTextPacket(message));
+            PlayerList playerList = server.getPlayerList();
+            playerList.getPlayers().forEach(player -> {
+                player.connection.send(new STitlePacket(STitlePacket.Type.ACTIONBAR, message));
             });
             if (ModConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted actionbar message: {}", message.getString());
@@ -155,11 +159,12 @@ public class Annoucements {
             String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
-            Component message = parseMessageWithColor(messageText);
+            ITextComponent message = parseMessageWithColor(messageText);
 
-            server.getPlayerList().getPlayers().forEach(player -> {
-                player.connection.send(new ClientboundClearTitlesPacket(false));
-                player.connection.send(new ClientboundSetTitleTextPacket(message));
+            PlayerList playerList = server.getPlayerList();
+            playerList.getPlayers().forEach(player -> {
+                player.connection.send(new STitlePacket(STitlePacket.Type.RESET, StringTextComponent.EMPTY));
+                player.connection.send(new STitlePacket(STitlePacket.Type.TITLE, message));
             });
             if (ModConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted title message: {}", message.getString());
@@ -177,12 +182,13 @@ public class Annoucements {
             String bossbarColor = ModConfigHandler.CONFIG.bossbarColor.get();
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
-            MutableComponent message = parseMessageWithColor(messageText);
+            ITextComponent message = parseMessageWithColor(messageText);
 
-            ServerBossEvent bossEvent = new ServerBossEvent(message, BossEvent.BossBarColor.valueOf(bossbarColor.toUpperCase()), BossEvent.BossBarOverlay.PROGRESS);
+            ServerBossInfo bossEvent = new ServerBossInfo(message, BossInfo.Color.valueOf(bossbarColor.toUpperCase()), BossInfo.Overlay.PROGRESS);
 
-            ClientboundBossEventPacket addPacket = ClientboundBossEventPacket.createAddPacket(bossEvent);
-            server.getPlayerList().getPlayers().forEach(player -> {
+            SUpdateBossInfoPacket addPacket = new SUpdateBossInfoPacket(SUpdateBossInfoPacket.Operation.ADD, bossEvent);
+            PlayerList playerList = server.getPlayerList();
+            playerList.getPlayers().forEach(player -> {
                 player.connection.send(addPacket);
             });
             if (ModConfigHandler.CONFIG.debugEnable.get()) {
@@ -191,8 +197,8 @@ public class Annoucements {
 
             scheduler.schedule(() -> {
                 if (server != null) {
-                    ClientboundBossEventPacket removePacket = ClientboundBossEventPacket.createRemovePacket(bossEvent.getId());
-                    server.getPlayerList().getPlayers().forEach(player -> {
+                    SUpdateBossInfoPacket removePacket = new SUpdateBossInfoPacket(SUpdateBossInfoPacket.Operation.REMOVE, bossEvent);
+                    playerList.getPlayers().forEach(player -> {
                         player.connection.send(removePacket);
                     });
                     if (ModConfigHandler.CONFIG.debugEnable.get()) {
@@ -207,13 +213,13 @@ public class Annoucements {
         }
     }
 
-    private static MutableComponent parseMessageWithColor(String rawMessage) {
-        MutableComponent message = new TextComponent("");
+    private static ITextComponent parseMessageWithColor(String rawMessage) {
+        ITextComponent message = new StringTextComponent("");
         String[] parts = rawMessage.split("§");
 
         Style style = Style.EMPTY;
         if (!rawMessage.startsWith("§")) {
-            message.append(new TextComponent(parts[0]).setStyle(style));
+            message.getSiblings().add(new StringTextComponent(parts[0]).setStyle(style));
         }
 
         for (int i = rawMessage.startsWith("§") ? 0 : 1; i < parts.length; i++) {
@@ -225,100 +231,63 @@ public class Annoucements {
             String text = parts[i].substring(1);
 
             style = applyColorCode(style, colorCode);
-            MutableComponent component = new TextComponent(text).setStyle(style);
-            message.append(component);
+            StringTextComponent component = (StringTextComponent) new StringTextComponent(text).setStyle(style);
+            message.getSiblings().add(component);
         }
 
         return message;
     }
 
-    private static MutableComponent createClickableMessage(String rawMessage) {
-        MutableComponent message = new TextComponent("");
+    private static ITextComponent createClickableMessage(String rawMessage) {
+        ITextComponent message = new StringTextComponent("");
         String[] parts = rawMessage.split(" ");
         for (int i = 0; i < parts.length; i++) {
-            MutableComponent part = new TextComponent(parts[i]);
+            StringTextComponent part = new StringTextComponent(parts[i]);
             if (parts[i].startsWith("http://") || parts[i].startsWith("https://")) {
                 part.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, parts[i])));
             }
-            message.append(part);
+            message.getSiblings().add(part);
             if (i < parts.length - 1) {
-                message.append(" ");
+                message.getSiblings().add(new StringTextComponent(" "));
             }
         }
         return message;
     }
 
     private static Style applyColorCode(Style style, char colorCode) {
-        switch (colorCode) {
-            case '0':
-                style = style.withColor(TextColor.fromRgb(0x000000)); // Black
-                break;
-            case '1':
-                style = style.withColor(TextColor.fromRgb(0x0000AA)); // Dark Blue
-                break;
-            case '2':
-                style = style.withColor(TextColor.fromRgb(0x00AA00)); // Dark Green
-                break;
-            case '3':
-                style = style.withColor(TextColor.fromRgb(0x00AAAA)); // Dark Aqua
-                break;
-            case '4':
-                style = style.withColor(TextColor.fromRgb(0xAA0000)); // Dark Red
-                break;
-            case '5':
-                style = style.withColor(TextColor.fromRgb(0xAA00AA)); // Dark Purple
-                break;
-            case '6':
-                style = style.withColor(TextColor.fromRgb(0xFFAA00)); // Gold
-                break;
-            case '7':
-                style = style.withColor(TextColor.fromRgb(0xAAAAAA)); // Gray
-                break;
-            case '8':
-                style = style.withColor(TextColor.fromRgb(0x555555)); // Dark Gray
-                break;
-            case '9':
-                style = style.withColor(TextColor.fromRgb(0x5555FF)); // Blue
-                break;
-            case 'a':
-                style = style.withColor(TextColor.fromRgb(0x55FF55)); // Green
-                break;
-            case 'b':
-                style = style.withColor(TextColor.fromRgb(0x55FFFF)); // Aqua
-                break;
-            case 'c':
-                style = style.withColor(TextColor.fromRgb(0xFF5555)); // Red
-                break;
-            case 'd':
-                style = style.withColor(TextColor.fromRgb(0xFF55FF)); // Light Purple
-                break;
-            case 'e':
-                style = style.withColor(TextColor.fromRgb(0xFFFF55)); // Yellow
-                break;
-            case 'f':
-                style = style.withColor(TextColor.fromRgb(0xFFFFFF)); // White
-                break;
-            case 'k':
-                style = style.withObfuscated(true);
-                break;
-            case 'l':
-                style = style.withBold(true);
-                break;
-            case 'm':
-                style = style.withStrikethrough(true);
-                break;
-            case 'n':
-                style = style.withUnderlined(true);
-                break;
-            case 'o':
-                style = style.withItalic(true);
-                break;
-            case 'r':
-                style = Style.EMPTY; // Reset
-                break;
-            default:
-                break;
+        TextFormatting[] values = TextFormatting.values();
+        if (Character.isDigit(colorCode)) {
+            int index = Character.getNumericValue(colorCode);
+            if (index >= 0 && index < values.length) {
+                style = style.withColor(values[index]);
+            }
+        } else {
+            switch (colorCode) {
+                case 'k':
+                    style = style.setObfuscated(true);
+                    break;
+                case 'l':
+                    style = style.withBold(true);
+                    break;
+                case 'm':
+                    style = style.setStrikethrough(true);
+                    break;
+                case 'n':
+                    style = style.setUnderlined(true);
+                    break;
+                case 'o':
+                    style = style.withItalic(true);
+                    break;
+                case 'r':
+                    style = Style.EMPTY; // Reset
+                    break;
+                default:
+                    break;
+            }
         }
         return style;
     }
 }
+
+
+
