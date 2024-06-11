@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannoucements;
+package avalanche7.net.forgeannouncements;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,20 +14,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-@Mod("forgeannoucements")
+@Mod("forgeannouncements")
 public class ForgeAnnoucements {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
     public ForgeAnnoucements() {
 
-        LOGGER.info("Initializing Forge Annoucements mod...");
+        LOGGER.info("Initializing Forge Announcements mod...");
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         MinecraftForge.EVENT_BUS.register(this);
 
         try {
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ModConfigHandler.SERVER_CONFIG);
-            ModConfigHandler.loadConfig(ModConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannoucements-common.toml").toString());
+            ModConfigHandler.loadConfig(ModConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements-common.toml").toString());
         } catch (Exception e) {
             LOGGER.error("Failed to register or load configuration", e);
             throw new RuntimeException("Configuration loading failed", e);
@@ -52,9 +52,9 @@ public class ForgeAnnoucements {
 
     private void setup(final FMLCommonSetupEvent event) {
 
-        LOGGER.info("Forge Annoucements mod has been enabled.");
+        LOGGER.info("Forge Announcements mod has been enabled.");
         LOGGER.info("=========================");
-        LOGGER.info("ForgeAnnoucements");
+        LOGGER.info("ForgeAnnouncements");
         LOGGER.info("Version: 1.0.0");
         LOGGER.info("Author: Avalanche7CZ");
         LOGGER.info("=========================");
@@ -65,7 +65,7 @@ public class ForgeAnnoucements {
     public static class UpdateChecker {
 
         private static final Logger LOGGER = LogManager.getLogger();
-        private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnoucements/main/version.txt";
+        private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnouncements/main/version.txt";
         private static String CURRENT_VERSION;
 
         public static void checkForUpdates() {
