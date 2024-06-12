@@ -1,5 +1,5 @@
 # ForgeAnnoucements
-The code on this branch is for Minecraft 1.18.2.
+The code on this branch is for Minecraft 1.12.2.
 
 Forge Announcements is a Minecraft mod designed for server administrators who want to automate broadcasting messages to players. This mod allows you to configure and schedule messages with ease, ensuring important information reaches all players without manual intervention.
 
