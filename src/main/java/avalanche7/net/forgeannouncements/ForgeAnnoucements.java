@@ -51,11 +51,11 @@ public class ForgeAnnoucements {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-
+        
         LOGGER.info("Forge Announcements mod has been enabled.");
         LOGGER.info("=========================");
         LOGGER.info("ForgeAnnouncements");
-        LOGGER.info("Version: 1.0.0");
+        LOGGER.info("Version: 16.0.0");
         LOGGER.info("Author: Avalanche7CZ");
         LOGGER.info("=========================");
 
@@ -65,7 +65,7 @@ public class ForgeAnnoucements {
     public static class UpdateChecker {
 
         private static final Logger LOGGER = LogManager.getLogger();
-        private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnouncements/main/version.txt";
+        private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnouncements/1.16.5/version.txt";
         private static String CURRENT_VERSION;
 
         public static void checkForUpdates() {
