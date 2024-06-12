@@ -1,164 +1,75 @@
 package avalanche7.net.forgeannouncements;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.Mod;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
 
-@Mod.EventBusSubscriber(modid = "forgeannouncements", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModConfigHandler {
 
-    public static final ForgeConfigSpec SERVER_CONFIG;
-    public static final Config CONFIG;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger(ForgeAnnouncements.MODID);
+    public static Configuration config;
 
-    static {
-        final Pair<Config, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Config::new);
-        SERVER_CONFIG = specPair.getRight();
-        CONFIG = specPair.getLeft();
-    }
+    public static boolean debugEnable;
+    public static boolean globalEnable;
+    public static boolean headerAndFooter;
+    public static int globalInterval;
+    public static String prefix;
+    public static String header;
+    public static String footer;
+    public static String sound;
+    public static List<String> globalMessages;
 
-    public static class Config {
-        public final ForgeConfigSpec.BooleanValue debugEnable;
+    public static boolean actionbarEnable;
+    public static int actionbarInterval;
+    public static List<String> actionbarMessages;
 
-        public final ForgeConfigSpec.BooleanValue globalEnable;
-        public final ForgeConfigSpec.BooleanValue headerAndFooter;
-        public final ForgeConfigSpec.IntValue globalInterval;
-        public final ForgeConfigSpec.ConfigValue<String> prefix;
-        public final ForgeConfigSpec.ConfigValue<String> header;
-        public final ForgeConfigSpec.ConfigValue<String> footer;
-        public final ForgeConfigSpec.ConfigValue<String> sound;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> globalMessages;
+    public static boolean titleEnable;
+    public static int titleInterval;
+    public static List<String> titleMessages;
 
-        public final ForgeConfigSpec.BooleanValue actionbarEnable;
-        public final ForgeConfigSpec.IntValue actionbarInterval;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> actionbarMessages;
+    public static boolean bossbarEnable;
+    public static int bossbarInterval;
+    public static String bossbarColor;
+    public static int bossbarTime;
+    public static List<String> bossbarMessages;
 
-        public final ForgeConfigSpec.BooleanValue titleEnable;
-        public final ForgeConfigSpec.IntValue titleInterval;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> titleMessages;
+    public static void init(Configuration config) {
+        ModConfigHandler.config = config;
+        config.load();
 
-        public final ForgeConfigSpec.BooleanValue bossbarEnable;
-        public final ForgeConfigSpec.IntValue bossbarInterval;
-        public final ForgeConfigSpec.ConfigValue<String> bossbarColor;
-        public final ForgeConfigSpec.IntValue bossbarTime;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> bossbarMessages;
+        debugEnable = config.getBoolean("DebugEnable", Configuration.CATEGORY_GENERAL, false, "Enable debug logging");
 
-        public Config(ForgeConfigSpec.Builder builder) {
+        globalEnable = config.getBoolean("GlobalEnable", "Auto_Broadcast", true, "Enable global messages");
+        headerAndFooter = config.getBoolean("HeaderAndFooter", "Auto_Broadcast", true, "Enable header and footer");
+        globalInterval = config.getInt("GlobalInterval", "Auto_Broadcast", 1800, 1, Integer.MAX_VALUE, "Interval in seconds for global messages");
+        prefix = config.getString("Prefix", "Auto_Broadcast", "§9§l[§b§lPREFIX§9§l]", "Prefix for messages");
+        header = config.getString("Header", "Auto_Broadcast", "§7*§7§m---------------------------------------------------§7*", "Header for messages");
+        footer = config.getString("Footer", "Auto_Broadcast", "§7*§7§m---------------------------------------------------§7*", "Footer for messages");
+        sound = config.getString("Sound", "Auto_Broadcast", "", "Sound to play");
+        globalMessages = Arrays.asList(config.getStringList("GlobalMessages", "Auto_Broadcast", new String[]{"{Prefix} §7This is global message with link: https://link/."}, "Global messages to broadcast"));
 
-            debugEnable = builder.comment("Enable debug logging")
-                    .define("Debug.Enable", false);
+        actionbarEnable = config.getBoolean("ActionbarEnable", "Auto_Broadcast", true, "Enable actionbar messages");
+        actionbarInterval = config.getInt("ActionbarInterval", "Auto_Broadcast", 1800, 1, Integer.MAX_VALUE, "Interval in seconds for actionbar messages");
+        actionbarMessages = Arrays.asList(config.getStringList("ActionbarMessages", "Auto_Broadcast", new String[]{"{Prefix} §7This is an actionbar message."}, "Actionbar messages to broadcast"));
 
-            builder.comment("Auto Broadcast Settings")
-                    .push("Auto_Broadcast");
+        titleEnable = config.getBoolean("TitleEnable", "Auto_Broadcast", true, "Enable title messages");
+        titleInterval = config.getInt("TitleInterval", "Auto_Broadcast", 1800, 1, Integer.MAX_VALUE, "Interval in seconds for title messages");
+        titleMessages = Arrays.asList(config.getStringList("TitleMessages", "Auto_Broadcast", new String[]{"{Prefix} §7This is a title message."}, "Title messages to broadcast"));
 
-            // Global Messages
-            globalEnable = builder.comment("Enable global messages")
-                    .define("Global_Messages.Enable", true);
+        bossbarEnable = config.getBoolean("BossbarEnable", "Auto_Broadcast", true, "Enable bossbar messages");
+        bossbarInterval = config.getInt("BossbarInterval", "Auto_Broadcast", 1800, 1, Integer.MAX_VALUE, "Interval in seconds for bossbar messages");
+        bossbarTime = config.getInt("BossbarTime", "Auto_Broadcast", 10, 1, Integer.MAX_VALUE, "How long the bossbar stays on for (seconds)");
+        bossbarColor = config.getString("BossbarColor", "Auto_Broadcast", "PURPLE", "Color of the bossbar");
+        bossbarMessages = Arrays.asList(config.getStringList("BossbarMessages", "Auto_Broadcast", new String[]{"{Prefix} §7This is a bossbar message."}, "Bossbar messages to broadcast"));
 
-            headerAndFooter = builder.comment("Enable header and footer")
-                    .define("Global_Messages.Header_And_Footer", true);
-
-            globalInterval = builder.comment("Interval in seconds for global messages")
-                    .defineInRange("Global_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
-
-            prefix = builder.comment("Prefix for messages")
-                    .define("Global_Messages.Prefix", "§9§l[§b§lPREFIX§9§l]");
-
-            header = builder.comment("Header for messages")
-                    .define("Global_Messages.Header", "§7*§7§m---------------------------------------------------§7*");
-
-            footer = builder.comment("Footer for messages")
-                    .define("Global_Messages.Footer", "§7*§7§m---------------------------------------------------§7*");
-
-            sound = builder.comment("Sound to play")
-                    .define("Global_Messages.Sound", "");
-
-            globalMessages = builder.comment("Global messages to broadcast")
-                    .defineList("Global_Messages.Messages",
-                            Arrays.asList(
-                                    "{Prefix} §7This is global message with link: https://link/."
-                            ),
-                            obj -> obj instanceof String);
-
-            // Actionbar Messages
-            actionbarEnable = builder.comment("Enable actionbar messages")
-                    .define("Actionbar_Messages.Enable", true);
-
-            actionbarInterval = builder.comment("Interval in seconds for actionbar messages")
-                    .defineInRange("Actionbar_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
-
-            actionbarMessages = builder.comment("Actionbar messages to broadcast")
-                    .defineList("Actionbar_Messages.Messages",
-                            Arrays.asList(
-                                    "{Prefix} §7This is an actionbar message."
-                            ),
-                            obj -> obj instanceof String);
-
-            // Title Messages
-            titleEnable = builder.comment("Enable title messages")
-                    .define("Title_Messages.Enable", true);
-
-            titleInterval = builder.comment("Interval in seconds for title messages")
-                    .defineInRange("Title_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
-
-            titleMessages = builder.comment("Title messages to broadcast")
-                    .defineList("Title_Messages.Messages",
-                            Arrays.asList(
-                                    "{Prefix} §7This is a title message."
-                            ),
-                            obj -> obj instanceof String);
-
-            // Bossbar Messages
-            bossbarEnable = builder.comment("Enable bossbar messages")
-                    .define("Bossbar_Messages.Enable", true);
-
-            bossbarInterval = builder.comment("Interval in seconds for bossbar messages")
-                    .defineInRange("Bossbar_Messages.Interval", 1800, 1, Integer.MAX_VALUE);
-
-            bossbarTime = builder.comment("How long the bossbar stays on for (seconds)")
-                    .defineInRange("Bossbar.Bar_Time", 10, 1, Integer.MAX_VALUE);
-
-            bossbarColor = builder.comment("Color of the bossbar")
-                    .define("Bossbar_Messages.Color", "PURPLE");
-
-            bossbarMessages = builder.comment("Bossbar messages to broadcast")
-                    .defineList("Bossbar_Messages.Messages",
-                            Arrays.asList(
-                                    "{Prefix} §7This is a bossbar message."
-                            ),
-                            obj -> obj instanceof String);
-
-            builder.pop();
+        if (config.hasChanged()) {
+            config.save();
         }
-    }
 
-    public static void loadConfig(ForgeConfigSpec config, String path) {
-        final CommentedFileConfig file = CommentedFileConfig.builder(path)
-                .sync()
-                .autosave()
-                .writingMode(com.electronwill.nightconfig.core.io.WritingMode.REPLACE)
-                .build();
-        file.load();
-        config.setConfig(file);
-        LOGGER.info("Configuration loaded from file: {}", path);
-        LOGGER.info("Global Enable: {}", CONFIG.globalEnable.get());
-        LOGGER.info("Global Interval: {}", CONFIG.globalInterval.get());
-        LOGGER.info("Global Messages: {}", CONFIG.globalMessages.get());
-        LOGGER.info("Actionbar Enable: {}", CONFIG.actionbarEnable.get());
-        LOGGER.info("Actionbar Interval: {}", CONFIG.actionbarInterval.get());
-        LOGGER.info("Actionbar Messages: {}", CONFIG.actionbarMessages.get());
-        LOGGER.info("Title Enable: {}", CONFIG.titleEnable.get());
-        LOGGER.info("Title Interval: {}", CONFIG.titleInterval.get());
-        LOGGER.info("Title Messages: {}", CONFIG.titleMessages.get());
-        LOGGER.info("Bossbar Enable: {}", CONFIG.bossbarEnable.get());
-        LOGGER.info("Bossbar Interval: {}", CONFIG.bossbarInterval.get());
-        LOGGER.info("Bossbar Bar Time: {}", CONFIG.bossbarTime.get());
-        LOGGER.info("Bossbar Messages: {}", CONFIG.bossbarMessages.get());
+        LOGGER.info("Configuration loaded.");
     }
 }
