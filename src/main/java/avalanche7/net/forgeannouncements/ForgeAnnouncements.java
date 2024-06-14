@@ -63,6 +63,7 @@ public class ForgeAnnouncements {
         LOGGER.info("=========================");
 
         UpdateChecker.checkForUpdates();
+
     }
 
     public class UpdateChecker {

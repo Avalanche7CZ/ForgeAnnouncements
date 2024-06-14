@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Mod.EventBusSubscriber(modid = "forgeannouncements", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Annoucements {
 
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Random random = new Random();
     private static final Logger LOGGER = LogUtils.getLogger();
     private static MinecraftServer server;
@@ -33,7 +33,6 @@ public class Annoucements {
         server = event.getServer();
         LOGGER.info("Server is starting, scheduling announcements.");
         scheduleAnnouncements();
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!scheduler.isShutdown()) {
                 LOGGER.info("Server is stopping, shutting down scheduler...");
@@ -207,7 +206,9 @@ public class Annoucements {
         }
     }
 
-    private static MutableComponent parseMessageWithColor(String rawMessage) {
+    static MutableComponent parseMessageWithColor(String rawMessage) {
+        rawMessage = rawMessage.replace("&", "§");
+
         MutableComponent message = new TextComponent("");
         String[] parts = rawMessage.split("§");
 
@@ -247,7 +248,6 @@ public class Annoucements {
         }
         return message;
     }
-
     private static Style applyColorCode(Style style, char colorCode) {
         switch (colorCode) {
             case '0':
