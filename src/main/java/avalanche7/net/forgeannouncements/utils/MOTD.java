@@ -1,0 +1,147 @@
+package avalanche7.net.forgeannouncements.utils;
+
+import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.network.chat.*;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+
+@Mod.EventBusSubscriber(modid = "forgeannouncements")
+public class MOTD {
+
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (MOTDConfigHandler.CONFIG.motdEnable.get()) {
+            Component motdMessage = createMOTDMessage((ServerPlayer) event.getPlayer());
+            event.getPlayer().sendMessage(motdMessage, Util.NIL_UUID);
+        }
+    }
+
+    private static Component createMOTDMessage(ServerPlayer player) {
+        String[] lines = MOTDConfigHandler.CONFIG.motdMessage.get().split("\n");
+        TextComponent motdMessage = new TextComponent("");
+
+        for (String line : lines) {
+            motdMessage.append(parseColoredText(line, player)).append("\n");
+        }
+
+        return motdMessage;
+    }
+
+    private static Component parseColoredText(String text, ServerPlayer player) {
+        TextComponent component = new TextComponent("");
+        String[] parts = text.split("§");
+
+        if (parts.length > 0) {
+            component.append(new TextComponent(parts[0]));
+        }
+
+        for (int i = 1; i < parts.length; i++) {
+            if (parts[i].length() > 0) {
+                char colorCode = parts[i].charAt(0);
+                String textPart = parts[i].substring(1);
+                Style style = Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.getByCode(colorCode)));
+
+                // Check for special tags
+                if (textPart.contains("[link=")) {
+                    String[] linkParts = textPart.split("\\[link=", 2);
+                    if (linkParts.length == 2) {
+                        String remainingText = linkParts[1];
+                        int endIndex = remainingText.indexOf("]");
+                        if (endIndex != -1) {
+                            String url = remainingText.substring(0, endIndex);
+                            remainingText = remainingText.substring(endIndex + 1).trim();
+
+                            component.append(new TextComponent(url)
+                                    .setStyle(style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, formatUrl(url)))));
+                            textPart = remainingText;
+                        }
+                    }
+                } else if (textPart.contains("[command=")) {
+                    String[] commandParts = textPart.split("\\[command=", 2);
+                    if (commandParts.length == 2) {
+                        String remainingText = commandParts[1];
+                        int endIndex = remainingText.indexOf("]");
+                        if (endIndex != -1) {
+                            String command = remainingText.substring(0, endIndex);
+                            remainingText = remainingText.substring(endIndex + 1).trim();
+                            if (command.startsWith("/")) {
+                                command = command.substring(1);
+                            }
+                            String initialText = commandParts[0].isEmpty() ? "/" : commandParts[0];
+
+                            component.append(new TextComponent(initialText + command)
+                                    .setStyle(style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + command))));
+                            if (!remainingText.isEmpty()) {
+                                component.append(" ");
+                            }
+                            textPart = remainingText;
+                        }
+                    }
+                } else if (textPart.contains("[hover=")) {
+                    String[] hoverParts = textPart.split("\\[hover=", 2);
+                    if (hoverParts.length == 2) {
+                        String hoverText = hoverParts[1];
+                        int endIndex = hoverText.indexOf("]");
+                        if (endIndex != -1) {
+                            hoverText = hoverText.substring(0, endIndex);
+                            String remainingText = hoverParts[1].substring(endIndex + 1);
+
+                            component.append(new TextComponent(hoverParts[0])
+                                    .setStyle(style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(hoverText)))));
+                            textPart = remainingText;
+                        }
+                    }
+                } else if (textPart.contains("[divider]")) {
+                    component.append(new TextComponent("--------------------")
+                            .setStyle(style.withColor(TextColor.fromLegacyFormat(ChatFormatting.GRAY))));
+                    textPart = "";
+
+                } else if (textPart.contains("[title=")) {
+                    String[] titleParts = textPart.split("\\[title=", 2);
+                    if (titleParts.length == 2) {
+                        String titleText = titleParts[1];
+                        int endIndex = titleText.indexOf("]");
+                        if (endIndex != -1) {
+                            titleText = titleText.substring(0, endIndex);
+                            String remainingText = titleParts[1].substring(endIndex + 1);
+                            Component titleComponent = Annoucements.parseMessageWithColor("§" + colorCode + titleText);
+                            ClientboundSetTitleTextPacket titlePacket = new ClientboundSetTitleTextPacket(titleComponent);
+                            player.connection.send(titlePacket);
+                            textPart = remainingText;
+                        }
+                    }
+                } else if (textPart.contains("[subtitle=")) {
+                    String[] subtitleParts = textPart.split("\\[subtitle=", 2);
+                    if (subtitleParts.length == 2) {
+                        String subtitleText = subtitleParts[1];
+                        int endIndex = subtitleText.indexOf("]");
+                        if (endIndex != -1) {
+                            subtitleText = subtitleText.substring(0, endIndex);
+                            String remainingText = subtitleParts[1].substring(endIndex + 1);
+                            Component subtitleComponent = Annoucements.parseMessageWithColor("§" + colorCode + subtitleText);
+                            ClientboundSetSubtitleTextPacket subtitlePacket = new ClientboundSetSubtitleTextPacket(subtitleComponent);
+                            player.connection.send(subtitlePacket);
+                            textPart = remainingText;
+                        }
+                    }
+                }
+                component.append(new TextComponent(textPart.trim()).setStyle(style));
+            }
+        }
+
+        return component;
+    }
+
+    private static String formatUrl(String url) {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://" + url;
+        }
+        return url;
+    }
+}

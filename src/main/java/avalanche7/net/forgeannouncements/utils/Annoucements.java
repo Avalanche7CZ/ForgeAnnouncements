@@ -1,5 +1,6 @@
-package avalanche7.net.forgeannouncements;
+package avalanche7.net.forgeannouncements.utils;
 
+import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Mod.EventBusSubscriber(modid = "forgeannouncements", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Annoucements {
 
-    static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    public static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Random random = new Random();
     private static final Logger LOGGER = LogUtils.getLogger();
     private static MinecraftServer server;
@@ -51,50 +52,50 @@ public class Annoucements {
     }
 
     public static void scheduleAnnouncements() {
-        if (ModConfigHandler.CONFIG.globalEnable.get()) {
-            long globalInterval = ModConfigHandler.CONFIG.globalInterval.get();
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+        if (AnnouncementsConfigHandler.CONFIG.globalEnable.get()) {
+            long globalInterval = AnnouncementsConfigHandler.CONFIG.globalInterval.get();
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Scheduling global messages with interval: {} seconds", globalInterval);
             }
             scheduler.scheduleAtFixedRate(Annoucements::broadcastGlobalMessages, globalInterval, globalInterval, TimeUnit.SECONDS);
         } else {
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Global messages are disabled.");
             }
         }
 
-        if (ModConfigHandler.CONFIG.actionbarEnable.get()) {
-            long actionbarInterval = ModConfigHandler.CONFIG.actionbarInterval.get();
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+        if (AnnouncementsConfigHandler.CONFIG.actionbarEnable.get()) {
+            long actionbarInterval = AnnouncementsConfigHandler.CONFIG.actionbarInterval.get();
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Scheduling actionbar messages with interval: {} seconds", actionbarInterval);
             }
             scheduler.scheduleAtFixedRate(Annoucements::broadcastActionbarMessages, actionbarInterval, actionbarInterval, TimeUnit.SECONDS);
         } else {
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Actionbar messages are disabled.");
             }
         }
 
-        if (ModConfigHandler.CONFIG.titleEnable.get()) {
-            long titleInterval = ModConfigHandler.CONFIG.titleInterval.get();
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+        if (AnnouncementsConfigHandler.CONFIG.titleEnable.get()) {
+            long titleInterval = AnnouncementsConfigHandler.CONFIG.titleInterval.get();
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Scheduling title messages with interval: {} seconds", titleInterval);
             }
             scheduler.scheduleAtFixedRate(Annoucements::broadcastTitleMessages, titleInterval, titleInterval, TimeUnit.SECONDS);
         } else {
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Title messages are disabled.");
             }
         }
 
-        if (ModConfigHandler.CONFIG.bossbarEnable.get()) {
-            long bossbarInterval = ModConfigHandler.CONFIG.bossbarInterval.get();
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+        if (AnnouncementsConfigHandler.CONFIG.bossbarEnable.get()) {
+            long bossbarInterval = AnnouncementsConfigHandler.CONFIG.bossbarInterval.get();
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Scheduling bossbar messages with interval: {} seconds", bossbarInterval);
             }
             scheduler.scheduleAtFixedRate(Annoucements::broadcastBossbarMessages, bossbarInterval, bossbarInterval, TimeUnit.SECONDS);
         } else {
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Bossbar messages are disabled.");
             }
         }
@@ -102,15 +103,15 @@ public class Annoucements {
 
     private static void broadcastGlobalMessages() {
         if (server != null) {
-            List<? extends String> messages = ModConfigHandler.CONFIG.globalMessages.get();
-            String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
-            String header = ModConfigHandler.CONFIG.header.get();
-            String footer = ModConfigHandler.CONFIG.footer.get();
+            List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.globalMessages.get();
+            String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
+            String header = AnnouncementsConfigHandler.CONFIG.header.get();
+            String footer = AnnouncementsConfigHandler.CONFIG.footer.get();
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
             MutableComponent message = createClickableMessage(messageText);
 
-            if (ModConfigHandler.CONFIG.headerAndFooter.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.headerAndFooter.get()) {
                 server.getPlayerList().getPlayers().forEach(player -> {
                     player.sendMessage(parseMessageWithColor(header), player.getUUID());
                     player.sendMessage(message, player.getUUID());
@@ -121,7 +122,7 @@ public class Annoucements {
                     player.sendMessage(message, player.getUUID());
                 });
             }
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted global message: {}", message.getString());
             }
         } else {
@@ -131,8 +132,8 @@ public class Annoucements {
 
     private static void broadcastActionbarMessages() {
         if (server != null) {
-            List<? extends String> messages = ModConfigHandler.CONFIG.actionbarMessages.get();
-            String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
+            List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.actionbarMessages.get();
+            String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
             MutableComponent message = parseMessageWithColor(messageText);
@@ -140,7 +141,7 @@ public class Annoucements {
             server.getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(new ClientboundSetActionBarTextPacket(message));
             });
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted actionbar message: {}", message.getString());
             }
         } else {
@@ -150,8 +151,8 @@ public class Annoucements {
 
     private static void broadcastTitleMessages() {
         if (server != null) {
-            List<? extends String> messages = ModConfigHandler.CONFIG.titleMessages.get();
-            String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
+            List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.titleMessages.get();
+            String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
             Component message = parseMessageWithColor(messageText);
@@ -160,7 +161,7 @@ public class Annoucements {
                 player.connection.send(new ClientboundClearTitlesPacket(false));
                 player.connection.send(new ClientboundSetTitleTextPacket(message));
             });
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted title message: {}", message.getString());
             }
         } else {
@@ -170,10 +171,10 @@ public class Annoucements {
 
     private static void broadcastBossbarMessages() {
         if (server != null) {
-            List<? extends String> messages = ModConfigHandler.CONFIG.bossbarMessages.get();
-            String prefix = ModConfigHandler.CONFIG.prefix.get() + "§r";
-            int bossbarTime = ModConfigHandler.CONFIG.bossbarTime.get();
-            String bossbarColor = ModConfigHandler.CONFIG.bossbarColor.get();
+            List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.bossbarMessages.get();
+            String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
+            int bossbarTime = AnnouncementsConfigHandler.CONFIG.bossbarTime.get();
+            String bossbarColor = AnnouncementsConfigHandler.CONFIG.bossbarColor.get();
 
             String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
             MutableComponent message = parseMessageWithColor(messageText);
@@ -184,7 +185,7 @@ public class Annoucements {
             server.getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(addPacket);
             });
-            if (ModConfigHandler.CONFIG.debugEnable.get()) {
+            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                 LOGGER.info("Broadcasted bossbar message: {}", message.getString());
             }
 
@@ -194,7 +195,7 @@ public class Annoucements {
                     server.getPlayerList().getPlayers().forEach(player -> {
                         player.connection.send(removePacket);
                     });
-                    if (ModConfigHandler.CONFIG.debugEnable.get()) {
+                    if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
                         LOGGER.info("Removed bossbar message after {} seconds", bossbarTime);
                     }
                 } else {
@@ -206,7 +207,7 @@ public class Annoucements {
         }
     }
 
-    static MutableComponent parseMessageWithColor(String rawMessage) {
+    public static MutableComponent parseMessageWithColor(String rawMessage) {
         rawMessage = rawMessage.replace("&", "§");
 
         MutableComponent message = new TextComponent("");

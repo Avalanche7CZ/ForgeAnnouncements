@@ -1,5 +1,7 @@
 package avalanche7.net.forgeannouncements;
 
+import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
+import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -11,8 +13,11 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Mod("forgeannouncements")
 public class ForgeAnnouncements {
@@ -26,32 +31,43 @@ public class ForgeAnnouncements {
         MinecraftForge.EVENT_BUS.register(this);
 
         try {
-            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ModConfigHandler.SERVER_CONFIG);
-            ModConfigHandler.loadConfig(ModConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements-common.toml").toString());
+            createDefaultConfigs();
+
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, AnnouncementsConfigHandler.SERVER_CONFIG, "forgeannouncements/announcements.toml");
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MOTDConfigHandler.SERVER_CONFIG, "forgeannouncements/motd.toml");
+
+            AnnouncementsConfigHandler.loadConfig(AnnouncementsConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/announcements.toml").toString());
+            MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/motd.toml").toString());
         } catch (Exception e) {
             LOGGER.error("Failed to register or load configuration", e);
             throw new RuntimeException("Configuration loading failed", e);
         }
 
-        long globalInterval = ModConfigHandler.CONFIG.globalInterval.get();
-        boolean globalEnable = ModConfigHandler.CONFIG.globalEnable.get();
-        LOGGER.info("Initial Global Config: Interval Value: {}, Enabled: {}", globalInterval, globalEnable);
+        logInitialConfigs();
+    }
 
-        long actionbarInterval = ModConfigHandler.CONFIG.actionbarInterval.get();
-        boolean actionbarEnable = ModConfigHandler.CONFIG.actionbarEnable.get();
-        LOGGER.info("Initial Actionbar Config: Interval Value: {}, Enabled: {}", actionbarInterval, actionbarEnable);
+    private void createDefaultConfigs() throws IOException {
+        Path configDir = FMLPaths.CONFIGDIR.get().resolve("forgeannouncements");
+        if (!Files.exists(configDir)) {
+            Files.createDirectories(configDir);
+        }
 
-        long titleInterval = ModConfigHandler.CONFIG.titleInterval.get();
-        boolean titleEnable = ModConfigHandler.CONFIG.titleEnable.get();
-        LOGGER.info("Initial Title Config: Interval Value: {}, Enabled: {}", titleInterval, titleEnable);
+        Path announcementsConfig = configDir.resolve("announcements.toml");
+        if (!Files.exists(announcementsConfig)) {
+            Files.createFile(announcementsConfig);
+            AnnouncementsConfigHandler.loadConfig(AnnouncementsConfigHandler.SERVER_CONFIG, announcementsConfig.toString());
+            AnnouncementsConfigHandler.SERVER_CONFIG.save();
+        }
 
-        long bossbarInterval = ModConfigHandler.CONFIG.bossbarInterval.get();
-        boolean bossbarEnable = ModConfigHandler.CONFIG.bossbarEnable.get();
-        LOGGER.info("Initial Bossbar Config: Interval Value: {}, Enabled: {}", bossbarInterval, bossbarEnable);
+        Path motdConfig = configDir.resolve("motd.toml");
+        if (!Files.exists(motdConfig)) {
+            Files.createFile(motdConfig);
+            MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, motdConfig.toString());
+            MOTDConfigHandler.SERVER_CONFIG.save();
+        }
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-
         String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
         String displayName = ModLoadingContext.get().getActiveContainer().getModInfo().getDisplayName();
 
@@ -63,10 +79,27 @@ public class ForgeAnnouncements {
         LOGGER.info("=========================");
 
         UpdateChecker.checkForUpdates();
-
     }
 
-    public class UpdateChecker {
+    private void logInitialConfigs() {
+        long globalInterval = AnnouncementsConfigHandler.CONFIG.globalInterval.get();
+        boolean globalEnable = AnnouncementsConfigHandler.CONFIG.globalEnable.get();
+        LOGGER.info("Initial Global Config: Interval Value: {}, Enabled: {}", globalInterval, globalEnable);
+
+        long actionbarInterval = AnnouncementsConfigHandler.CONFIG.actionbarInterval.get();
+        boolean actionbarEnable = AnnouncementsConfigHandler.CONFIG.actionbarEnable.get();
+        LOGGER.info("Initial Actionbar Config: Interval Value: {}, Enabled: {}", actionbarInterval, actionbarEnable);
+
+        long titleInterval = AnnouncementsConfigHandler.CONFIG.titleInterval.get();
+        boolean titleEnable = AnnouncementsConfigHandler.CONFIG.titleEnable.get();
+        LOGGER.info("Initial Title Config: Interval Value: {}, Enabled: {}", titleInterval, titleEnable);
+
+        long bossbarInterval = AnnouncementsConfigHandler.CONFIG.bossbarInterval.get();
+        boolean bossbarEnable = AnnouncementsConfigHandler.CONFIG.bossbarEnable.get();
+        LOGGER.info("Initial Bossbar Config: Interval Value: {}, Enabled: {}", bossbarInterval, bossbarEnable);
+    }
+
+    public static class UpdateChecker {
 
         private static final String LATEST_VERSION_URL = "https://raw.githubusercontent.com/Avalanche7CZ/ForgeAnnouncements/main/version.txt";
         private static String CURRENT_VERSION;

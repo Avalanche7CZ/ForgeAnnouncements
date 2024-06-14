@@ -1,5 +1,7 @@
-package avalanche7.net.forgeannouncements;
+package avalanche7.net.forgeannouncements.commands;
 
+import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
+import avalanche7.net.forgeannouncements.utils.Annoucements;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -24,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.concurrent.TimeUnit;
 
 @Mod.EventBusSubscriber(modid = "forgeannouncements")
-public class ForgeAnnouncementsCommand {
+public class AnnouncementsCommand {
 
     public static int broadcastMessage(CommandContext<CommandSourceStack> context, String type) throws CommandSyntaxException {
         String message = StringArgumentType.getString(context, "message");
@@ -51,8 +53,8 @@ public class ForgeAnnouncementsCommand {
             case "broadcast":
                 boolean headerFooter = BoolArgumentType.getBool(context, "header_footer");
                 if (headerFooter) {
-                    String header = ModConfigHandler.CONFIG.header.get();
-                    String footer = ModConfigHandler.CONFIG.footer.get();
+                    String header = AnnouncementsConfigHandler.CONFIG.header.get();
+                    String footer = AnnouncementsConfigHandler.CONFIG.footer.get();
                     MutableComponent headerMessage = Annoucements.parseMessageWithColor(header);
                     MutableComponent footerMessage = Annoucements.parseMessageWithColor(footer);
                     MutableComponent finalBroadcastMessage = broadcastMessage;

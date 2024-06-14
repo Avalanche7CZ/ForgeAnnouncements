@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements;
+package avalanche7.net.forgeannouncements.configs;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -10,7 +10,7 @@ import com.mojang.logging.LogUtils;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = "forgeannouncements", bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModConfigHandler {
+public class AnnouncementsConfigHandler {
 
     public static final ForgeConfigSpec SERVER_CONFIG;
     public static final Config CONFIG;
