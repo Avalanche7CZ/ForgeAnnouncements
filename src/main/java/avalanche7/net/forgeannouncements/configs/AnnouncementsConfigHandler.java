@@ -1,14 +1,15 @@
-package avalanche7.net.forgeannouncements;
+package avalanche7.net.forgeannouncements.configs;
 
+import avalanche7.net.forgeannouncements.ForgeAnnouncements;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 
-public class ModConfigHandler {
+public class AnnouncementsConfigHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(ForgeAnnouncements.MODID);
     public static Configuration config;
@@ -38,7 +39,7 @@ public class ModConfigHandler {
     public static List<String> bossbarMessages;
 
     public static void init(Configuration config) {
-        ModConfigHandler.config = config;
+        AnnouncementsConfigHandler.config = config;
         config.load();
 
         debugEnable = config.getBoolean("DebugEnable", Configuration.CATEGORY_GENERAL, false, "Enable debug logging");
