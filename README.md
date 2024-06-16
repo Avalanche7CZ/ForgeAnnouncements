@@ -16,4 +16,4 @@ Place the downloaded .jar file into the mods folder of your Minecraft server dir
 Run the server to generate the default configuration file.
 
 ## Configuration [1.12.2]
-The mod creates a configuration file located in `configs/announcements.cfg and motd.cfg`. You can edit this file to customize the behavior of the mod.
+The mod creates a configuration file located in `configs/forgeannoucements/announcements.cfg and motd.cfg`. You can edit this file to customize the behavior of the mod.
