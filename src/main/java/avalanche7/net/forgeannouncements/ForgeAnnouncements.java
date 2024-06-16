@@ -2,6 +2,8 @@ package avalanche7.net.forgeannouncements;
 
 import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
 import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
+import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
+import avalanche7.net.forgeannouncements.utils.Mentions;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -25,19 +27,21 @@ public class ForgeAnnouncements {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public ForgeAnnouncements() {
-
         LOGGER.info("Initializing Forge Announcement mod...");
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(Mentions.class);
 
         try {
             createDefaultConfigs();
 
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, AnnouncementsConfigHandler.SERVER_CONFIG, "forgeannouncements/announcements.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MOTDConfigHandler.SERVER_CONFIG, "forgeannouncements/motd.toml");
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MentionConfigHandler.SERVER_CONFIG, "forgeannouncements/mentions.toml");
 
             AnnouncementsConfigHandler.loadConfig(AnnouncementsConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/announcements.toml").toString());
             MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/motd.toml").toString());
+            MentionConfigHandler.loadConfig(MentionConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/mentions.toml").toString());
         } catch (Exception e) {
             LOGGER.error("Failed to register or load configuration", e);
             throw new RuntimeException("Configuration loading failed", e);
@@ -64,6 +68,13 @@ public class ForgeAnnouncements {
             Files.createFile(motdConfig);
             MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, motdConfig.toString());
             MOTDConfigHandler.SERVER_CONFIG.save();
+        }
+
+        Path mentionsConfig = configDir.resolve("mentions.toml");
+        if (!Files.exists(mentionsConfig)) {
+            Files.createFile(mentionsConfig);
+            MentionConfigHandler.loadConfig(MentionConfigHandler.SERVER_CONFIG, mentionsConfig.toString());
+            MentionConfigHandler.SERVER_CONFIG.save();
         }
     }
 
