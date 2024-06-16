@@ -22,6 +22,6 @@ Forge Announcements is a Minecraft mod designed for server administrators who wa
 2. Place the downloaded .jar file into the `mods` folder of your Minecraft server directory.
 3. Run the server to generate the default configuration file.
 
-## Configuration
-The mod creates a configuration file located in `world/serverconfigs/forgeannouncements-server.toml`. You can edit this file to customize the behavior of the mod.
+## Configuration [1.18.2]
+The mod creates a configuration file located in `world/serverconfigs/forgeannouncements/ announcements.toml and motd.toml`. You can edit this file to customize the behavior of the mod.
 
