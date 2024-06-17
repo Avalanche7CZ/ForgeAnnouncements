@@ -1,5 +1,6 @@
 package avalanche7.net.forgeannouncements.commands;
 
+import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -43,15 +44,18 @@ public class AnnouncementsCommand extends CommandBase {
 
         String type = args[0];
         String message = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
-
+        int requiredPermissionLevel;
         switch (type) {
             case "broadcast":
+                requiredPermissionLevel = PermissionsHandler.BROADCAST_PERMISSION_LEVEL;
                 broadcastMessage(server, sender, message);
                 break;
             case "actionbar":
+                requiredPermissionLevel = PermissionsHandler.ACTIONBAR_PERMISSION_LEVEL;
                 actionbarMessage(server, sender, message);
                 break;
             case "title":
+                requiredPermissionLevel = PermissionsHandler.TITLE_PERMISSION_LEVEL;
                 int separatorIndex = java.util.Arrays.asList(args).indexOf("-");
                 String title, subtitle;
                 if (separatorIndex == -1 || separatorIndex == 1 || separatorIndex == args.length - 1) {
@@ -67,6 +71,7 @@ public class AnnouncementsCommand extends CommandBase {
                 subtitleMessage(server, sender, message);
                 break;
             case "bossbar":
+                requiredPermissionLevel = PermissionsHandler.BOSSBAR_PERMISSION_LEVEL;
                 if (args.length < 4) {
                     sender.sendMessage(new TextComponentString("Usage: /forgeannouncements bossbar <interval> <color> <message>"));
                     return;

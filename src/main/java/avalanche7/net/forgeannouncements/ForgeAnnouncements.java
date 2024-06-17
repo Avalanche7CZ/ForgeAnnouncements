@@ -3,6 +3,7 @@ package avalanche7.net.forgeannouncements;
 import avalanche7.net.forgeannouncements.commands.AnnouncementsCommand;
 import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
 import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
+import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
 import avalanche7.net.forgeannouncements.utils.Announcements;
 import avalanche7.net.forgeannouncements.utils.MOTD;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +25,7 @@ public class ForgeAnnouncements {
 
     public static final String MODID = "forgeannouncements";
     public static final String NAME = "Forge Announcements";
-    public static final String VERSION = "12.0.1";
+    public static final String VERSION = "12.0.2";
 
     private static final Logger LOGGER = LogManager.getLogger(MODID);
 
@@ -41,8 +42,11 @@ public class ForgeAnnouncements {
         AnnouncementsConfigHandler.init(config);
         Configuration motdConfig = new Configuration(new File(directory.getPath(), "motd.cfg"));
         MOTDConfigHandler.init(motdConfig);
+        Configuration mentionsConfig = new Configuration(new File(directory.getPath(), "mentions.cfg"));
+        MentionConfigHandler.init(mentionsConfig);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new MOTD());
+        MinecraftForge.EVENT_BUS.register(new avalanche7.net.forgeannouncements.utils.Mentions());
     }
 
     @Mod.EventHandler
