@@ -16,6 +16,7 @@ Forge Announcements is a Minecraft mod designed for server administrators who wa
 - Clickable Links: Supports clickable links in messages for easy access to external resources.
 - Customizable MOTD: You can customize your motd with multiple tags
 - Commands
+- Mentions usage: `@everyone` ; `@PlayerName`
 
 ## Installation
 1. Download the latest version of the mod from the [Releases page](https://github.com/Avalanche7CZ/ForgeAnnouncements/releases).
