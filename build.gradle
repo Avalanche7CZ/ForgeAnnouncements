@@ -65,6 +65,9 @@ repositories {
     maven {
         url "https://repo.lucko.me/"
     }
+    maven {
+        url "https://cursemaven.com"
+    }
 }
 
 processResources {
@@ -75,6 +78,16 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly('net.luckperms:api:5.4')
+    compileOnly files("libs/forgeessentials-1.18.2-18.0.0-server.jar")
+
+}
+
+sourceSets {
+    main {
+        java {
+            exclude '**/Restart.java', '**/RestartCommand.java', '**/RestartConfigHandler.java'
+        }
+    }
 }
 
 

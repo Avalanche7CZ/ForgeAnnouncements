@@ -24,6 +24,7 @@ public class AnnouncementsConfigHandler {
 
     public static class Config {
         public final ForgeConfigSpec.BooleanValue debugEnable;
+        public final ForgeConfigSpec.ConfigValue<String> orderMode;
 
         public final ForgeConfigSpec.BooleanValue globalEnable;
         public final ForgeConfigSpec.BooleanValue headerAndFooter;
@@ -55,6 +56,9 @@ public class AnnouncementsConfigHandler {
 
             builder.comment("Auto Broadcast Settings")
                     .push("Auto_Broadcast");
+
+            orderMode = builder.comment("Order mode for messages (RANDOM or SEQUENTIAL)")
+                    .define("Order_Mode", "RANDOM");
 
             // Global Messages
             globalEnable = builder.comment("Enable global messages")

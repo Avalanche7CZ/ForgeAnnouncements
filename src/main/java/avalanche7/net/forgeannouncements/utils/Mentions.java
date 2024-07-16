@@ -49,8 +49,8 @@ public class Mentions {
                     }
                     System.out.println("Mention player detected: " + player.getName().getString());
                     notifyPlayer(player, sender, message);
-                    message = message.replaceFirst(mention, ""); // Remove the mention from the message
-                    event.setComponent(new TextComponent(message)); // Set the new message
+                    message = message.replaceFirst(mention, "");
+                    event.setComponent(new TextComponent(message));
                 }
             }
         }

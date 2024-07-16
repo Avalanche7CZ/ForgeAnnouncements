@@ -101,6 +101,10 @@ public class Annoucements {
         }
     }
 
+    private static int globalMessageIndex = 0;
+    private static int actionbarMessageIndex = 0;
+    private static int titleMessageIndex = 0;
+    private static int bossbarMessageIndex = 0;
     private static void broadcastGlobalMessages() {
         if (server != null) {
             List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.globalMessages.get();
@@ -108,7 +112,14 @@ public class Annoucements {
             String header = AnnouncementsConfigHandler.CONFIG.header.get();
             String footer = AnnouncementsConfigHandler.CONFIG.footer.get();
 
-            String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            String messageText;
+            if (AnnouncementsConfigHandler.CONFIG.orderMode.get().equals("SEQUENTIAL")) {
+                messageText = messages.get(globalMessageIndex).replace("{Prefix}", prefix);
+                globalMessageIndex = (globalMessageIndex + 1) % messages.size();
+            } else {
+                messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            }
+
             MutableComponent message = createClickableMessage(messageText);
 
             if (AnnouncementsConfigHandler.CONFIG.headerAndFooter.get()) {
@@ -135,7 +146,13 @@ public class Annoucements {
             List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.actionbarMessages.get();
             String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
 
-            String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            String messageText;
+            if (AnnouncementsConfigHandler.CONFIG.orderMode.get().equals("SEQUENTIAL")) {
+                messageText = messages.get(actionbarMessageIndex).replace("{Prefix}", prefix);
+                actionbarMessageIndex = (actionbarMessageIndex + 1) % messages.size();
+            } else {
+                messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            }
             MutableComponent message = parseMessageWithColor(messageText);
 
             server.getPlayerList().getPlayers().forEach(player -> {
@@ -154,7 +171,13 @@ public class Annoucements {
             List<? extends String> messages = AnnouncementsConfigHandler.CONFIG.titleMessages.get();
             String prefix = AnnouncementsConfigHandler.CONFIG.prefix.get() + "§r";
 
-            String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            String messageText;
+            if (AnnouncementsConfigHandler.CONFIG.orderMode.get().equals("SEQUENTIAL")) {
+                messageText = messages.get(titleMessageIndex).replace("{Prefix}", prefix);
+                titleMessageIndex = (titleMessageIndex + 1) % messages.size();
+            } else {
+                messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            }
             Component message = parseMessageWithColor(messageText);
 
             server.getPlayerList().getPlayers().forEach(player -> {
@@ -176,7 +199,13 @@ public class Annoucements {
             int bossbarTime = AnnouncementsConfigHandler.CONFIG.bossbarTime.get();
             String bossbarColor = AnnouncementsConfigHandler.CONFIG.bossbarColor.get();
 
-            String messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            String messageText;
+            if (AnnouncementsConfigHandler.CONFIG.orderMode.get().equals("SEQUENTIAL")) {
+                messageText = messages.get(bossbarMessageIndex).replace("{Prefix}", prefix);
+                bossbarMessageIndex = (bossbarMessageIndex + 1) % messages.size();
+            } else {
+                messageText = messages.get(random.nextInt(messages.size())).replace("{Prefix}", prefix);
+            }
             MutableComponent message = parseMessageWithColor(messageText);
 
             ServerBossEvent bossEvent = new ServerBossEvent(message, BossEvent.BossBarColor.valueOf(bossbarColor.toUpperCase()), BossEvent.BossBarOverlay.PROGRESS);
