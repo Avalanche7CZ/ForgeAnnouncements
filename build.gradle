@@ -85,7 +85,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            exclude '**/Restart.java', '**/RestartCommand.java', '**/RestartConfigHandler.java'
+            //exclude '**/Restart.java', '**/RestartCommand.java', '**/RestartConfigHandler.java'
         }
     }
 }

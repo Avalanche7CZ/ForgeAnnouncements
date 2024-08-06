@@ -3,10 +3,10 @@ package avalanche7.net.forgeannouncements;
 import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
 import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
 import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
-//import avalanche7.net.forgeannouncements.configs.RestartConfigHandler;
+import avalanche7.net.forgeannouncements.configs.RestartConfigHandler;
 import avalanche7.net.forgeannouncements.utils.Mentions;
 import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
-//import avalanche7.net.forgeannouncements.utils.Restart;
+import avalanche7.net.forgeannouncements.utils.Restart;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -35,8 +35,8 @@ public class ForgeAnnouncements {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(Mentions.class);
         MinecraftForge.EVENT_BUS.register(PermissionsHandler.class);
-        //MinecraftForge.EVENT_BUS.register(RestartConfigHandler.class);
-        //MinecraftForge.EVENT_BUS.register(Restart.class);
+        MinecraftForge.EVENT_BUS.register(RestartConfigHandler.class);
+        MinecraftForge.EVENT_BUS.register(Restart.class);
 
         try {
             createDefaultConfigs();
@@ -44,9 +44,9 @@ public class ForgeAnnouncements {
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, AnnouncementsConfigHandler.SERVER_CONFIG, "forgeannouncements/announcements.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MOTDConfigHandler.SERVER_CONFIG, "forgeannouncements/motd.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MentionConfigHandler.SERVER_CONFIG, "forgeannouncements/mentions.toml");
-            //ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, RestartConfigHandler.SERVER_CONFIG, "forgeannouncements/restarts.toml");
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, RestartConfigHandler.SERVER_CONFIG, "forgeannouncements/restarts.toml");
 
-            //RestartConfigHandler.loadConfig(RestartConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/restarts.toml").toString());
+            RestartConfigHandler.loadConfig(RestartConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/restarts.toml").toString());
             AnnouncementsConfigHandler.loadConfig(AnnouncementsConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/announcements.toml").toString());
             MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/motd.toml").toString());
             MentionConfigHandler.loadConfig(MentionConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/mentions.toml").toString());
@@ -54,8 +54,6 @@ public class ForgeAnnouncements {
             LOGGER.error("Failed to register or load configuration", e);
             throw new RuntimeException("Configuration loading failed", e);
         }
-
-        logInitialConfigs();
     }
 
     private void createDefaultConfigs() throws IOException {
@@ -84,12 +82,12 @@ public class ForgeAnnouncements {
             MentionConfigHandler.loadConfig(MentionConfigHandler.SERVER_CONFIG, mentionsConfig.toString());
             MentionConfigHandler.SERVER_CONFIG.save();
         }
-//        Path restartConfig = configDir.resolve("restarts.toml");
-//        if (!Files.exists(restartConfig)) {
-//            Files.createFile(restartConfig);
-//            RestartConfigHandler.loadConfig(RestartConfigHandler.SERVER_CONFIG, restartConfig.toString());
-//            RestartConfigHandler.SERVER_CONFIG.save();
-//        }
+        Path restartConfig = configDir.resolve("restarts.toml");
+        if (!Files.exists(restartConfig)) {
+           Files.createFile(restartConfig);
+           RestartConfigHandler.loadConfig(RestartConfigHandler.SERVER_CONFIG, restartConfig.toString());
+            RestartConfigHandler.SERVER_CONFIG.save();
+        }
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -103,24 +101,6 @@ public class ForgeAnnouncements {
         LOGGER.info("Author: Avalanche7CZ");
         LOGGER.info("=========================");
         UpdateChecker.checkForUpdates();
-    }
-
-    private void logInitialConfigs() {
-        long globalInterval = AnnouncementsConfigHandler.CONFIG.globalInterval.get();
-        boolean globalEnable = AnnouncementsConfigHandler.CONFIG.globalEnable.get();
-        LOGGER.info("Initial Global Config: Interval Value: {}, Enabled: {}", globalInterval, globalEnable);
-
-        long actionbarInterval = AnnouncementsConfigHandler.CONFIG.actionbarInterval.get();
-        boolean actionbarEnable = AnnouncementsConfigHandler.CONFIG.actionbarEnable.get();
-        LOGGER.info("Initial Actionbar Config: Interval Value: {}, Enabled: {}", actionbarInterval, actionbarEnable);
-
-        long titleInterval = AnnouncementsConfigHandler.CONFIG.titleInterval.get();
-        boolean titleEnable = AnnouncementsConfigHandler.CONFIG.titleEnable.get();
-        LOGGER.info("Initial Title Config: Interval Value: {}, Enabled: {}", titleInterval, titleEnable);
-
-        long bossbarInterval = AnnouncementsConfigHandler.CONFIG.bossbarInterval.get();
-        boolean bossbarEnable = AnnouncementsConfigHandler.CONFIG.bossbarEnable.get();
-        LOGGER.info("Initial Bossbar Config: Interval Value: {}, Enabled: {}", bossbarInterval, bossbarEnable);
     }
 
     public static class UpdateChecker {

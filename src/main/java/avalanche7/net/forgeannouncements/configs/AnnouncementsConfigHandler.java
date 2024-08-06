@@ -149,6 +149,7 @@ public class AnnouncementsConfigHandler {
                 .build();
         file.load();
         config.setConfig(file);
+        /*
         LOGGER.info("Configuration loaded from file: {}", path);
         LOGGER.info("Global Enable: {}", CONFIG.globalEnable.get());
         LOGGER.info("Global Interval: {}", CONFIG.globalInterval.get());
@@ -163,5 +164,6 @@ public class AnnouncementsConfigHandler {
         LOGGER.info("Bossbar Interval: {}", CONFIG.bossbarInterval.get());
         LOGGER.info("Bossbar Bar Time: {}", CONFIG.bossbarTime.get());
         LOGGER.info("Bossbar Messages: {}", CONFIG.bossbarMessages.get());
+         */
     }
 }
