@@ -2,9 +2,9 @@ name: JCIG-1.18.2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "1.18.2" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "1.18.2" ]
 
 jobs:
   build:
