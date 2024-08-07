@@ -1,10 +1,10 @@
-name: JCIG-1.18.2
+name: JCIG-1.19.2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "1.19.2" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "1.19.2" ]
 
 jobs:
   build:

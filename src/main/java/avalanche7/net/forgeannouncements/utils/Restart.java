@@ -1,11 +1,10 @@
 package avalanche7.net.forgeannouncements.utils;
 
+import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
 import avalanche7.net.forgeannouncements.configs.RestartConfigHandler;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
-import net.minecraft.network.chat.ChatType;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -34,41 +33,34 @@ public class Restart {
     private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("00");
     public static boolean isRestarting = false;
     private static MinecraftServer server;
-    private static final Logger LOGGER = LogUtils.getLogger();
-
-    private static void debugLog(String message) {
-        if (RestartConfigHandler.CONFIG.debugEnabled.get()) {
-            LOGGER.info(message);
-        }
-    }
-    private static void debugLog(String message, Exception e) {
-        if (RestartConfigHandler.CONFIG.debugEnabled.get()) {
-            LOGGER.error(message, e);
-        }
-    }
-
     @SubscribeEvent
     public static void onServerStarting(ServerStartingEvent event) {
+
+        if (!MainConfigHandler.CONFIG.restartEnable.get()) {
+                DebugLogger.debugLog("Restart feature is disabled.");
+            return;
+        }
+
         server = event.getServer();
-        debugLog("Server is starting, scheduling restarts.");
+        DebugLogger.debugLog("Server is starting, scheduling restarts.");
         String restartType = RestartConfigHandler.CONFIG.restartType.get();
-        debugLog("Configured restart type: " + restartType);
+        DebugLogger.debugLog("Configured restart type: " + restartType);
         switch (restartType) {
             case "Fixed":
                 double restartInterval = RestartConfigHandler.CONFIG.restartInterval.get();
-                debugLog("Fixed restart scheduled every " + restartInterval + " hours.");
+                DebugLogger.debugLog("Fixed restart scheduled every " + restartInterval + " hours.");
                 scheduleFixedRestart();
                 break;
             case "Realtime":
                 List<String> realTimeIntervals = (List<String>) RestartConfigHandler.CONFIG.realTimeInterval.get();
-                debugLog("Real-time restarts will be scheduled with intervals: " + realTimeIntervals);
+                DebugLogger.debugLog("Real-time restarts will be scheduled with intervals: " + realTimeIntervals);
                 scheduleRealTimeRestart();
                 break;
             case "None":
-                debugLog("No automatic restarts scheduled.");
+                DebugLogger.debugLog("No automatic restarts scheduled.");
                 break;
             default:
-                debugLog("Unknown restart type specified: " + restartType);
+                DebugLogger.debugLog("Unknown restart type specified: " + restartType);
                 break;
         }
     }
@@ -76,17 +68,17 @@ public class Restart {
     public static void shutdown() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server != null) {
-            debugLog("Shutdown initiated at: " + new Date());
+            DebugLogger.debugLog("Shutdown initiated at: " + new Date());
             try {
-                debugLog("Stopping server...");
+                DebugLogger.debugLog("Stopping server...");
                 server.saveEverything(true, true, true);
                 server.halt(false);
-                debugLog("Server stopped successfully.");
+                DebugLogger.debugLog("Server stopped successfully.");
             } catch (Exception e) {
-                debugLog("Error during server shutdown", e);
+                DebugLogger.debugLog("Error during server shutdown", e);
             }
         } else {
-            debugLog("Server instance is null, cannot shutdown.");
+            DebugLogger.debugLog("Server instance is null, cannot shutdown.");
         }
     }
 
@@ -95,12 +87,12 @@ public class Restart {
         long startTimestamp = System.currentTimeMillis();
         long totalIntervalSeconds = (long) (rInterval);
 
-        debugLog("Broadcasting warning messages with interval: " + rInterval + " seconds.");
+        DebugLogger.debugLog("Broadcasting warning messages with interval: " + rInterval + " seconds.");
 
         for (int broadcastTime : timerBroadcast) {
             long broadcastIntervalSeconds = totalIntervalSeconds - broadcastTime;
             if (broadcastIntervalSeconds > 0) {
-                debugLog("Scheduling warning message for: " + broadcastIntervalSeconds + " seconds from now.");
+                DebugLogger.debugLog("Scheduling warning message for: " + broadcastIntervalSeconds + " seconds from now.");
                 Timer warnTimer = new Timer();
                 warnTimer.schedule(new TimerTask() {
                     @Override
@@ -119,8 +111,8 @@ public class Restart {
                                     .replace("{hours}", String.valueOf(hours))
                                     .replace("{minutes}", TIME_FORMATTER.format(minutes))
                                     .replace("{seconds}", TIME_FORMATTER.format(seconds));
-                            TextComponent messageComponent = new TextComponent(customMessage);
-                            server.getPlayerList().broadcastMessage(messageComponent, ChatType.SYSTEM, Util.NIL_UUID);
+                            Component messageComponent = Component.literal(customMessage);
+                            server.getPlayerList().broadcastSystemMessage(messageComponent, false);
                         }
 
                         if (RestartConfigHandler.CONFIG.titleEnabled.get()) {
@@ -129,7 +121,7 @@ public class Restart {
                                     .replace("{minutes}", TIME_FORMATTER.format(minutes))
                                     .replace("{seconds}", TIME_FORMATTER.format(seconds));
 
-                            TextComponent titleComponent = new TextComponent(titleMessage);
+                            Component titleComponent = Component.literal(titleMessage);
                             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                                 player.connection.send(new ClientboundSetTitleTextPacket(titleComponent));
                             }
@@ -137,18 +129,23 @@ public class Restart {
 
                         if (RestartConfigHandler.CONFIG.playSoundEnabled.get()) {
                             String soundString = RestartConfigHandler.CONFIG.playSoundString.get();
-                            SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(soundString));
-                            if (soundEvent != null) {
-                                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                                    player.playNotifySound(soundEvent, net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F);
+                            try {
+                                ResourceLocation soundLocation = new ResourceLocation(soundString.toLowerCase());
+                                SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(soundLocation);
+                                if (soundEvent != null) {
+                                    for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                                        player.playNotifySound(soundEvent, net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F);
+                                    }
                                 }
+                            } catch (ResourceLocationException e) {
+                                DebugLogger.debugLog("Invalid sound resource location: " + soundString, e);
                             }
                         }
 
                         if (RestartConfigHandler.CONFIG.bossbarEnabled.get()) {
                             String bossBarMessage = RestartConfigHandler.CONFIG.bossBarMessage.get()
                                     .replace("{time}", formattedTime);
-                            Component message = new TextComponent(bossBarMessage);
+                            Component message = Component.literal(bossBarMessage);
                             ServerBossEvent bossEvent = new ServerBossEvent(message, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
 
                             ClientboundBossEventPacket addPacket = ClientboundBossEventPacket.createAddPacket(bossEvent);
@@ -173,22 +170,22 @@ public class Restart {
     public static void scheduleFixedRestart() {
         double intervalHours = RestartConfigHandler.CONFIG.restartInterval.get();
         if (intervalHours <= 0) {
-            debugLog("Invalid restart interval specified: " + intervalHours);
+            DebugLogger.debugLog("Invalid restart interval specified: " + intervalHours);
             return;
         }
 
         long intervalMillis = (long) (intervalHours * 3600 * 1000);
         if (executorService.isShutdown()) {
-            debugLog("ExecutorService has been shut down. Not scheduling new tasks.");
+            DebugLogger.debugLog("ExecutorService has been shut down. Not scheduling new tasks.");
             return;
         }
 
-        debugLog("Scheduling fixed restart every " + intervalHours + " hours.");
+        DebugLogger.debugLog("Scheduling fixed restart every " + intervalHours + " hours.");
         executorService.scheduleAtFixedRate(() -> {
             try {
                 shutdown();
             } catch (Exception e) {
-                debugLog("Error during fixed restart execution", e);
+                DebugLogger.debugLog("Error during fixed restart execution", e);
             }
         }, intervalMillis, intervalMillis, TimeUnit.MILLISECONDS);
     }
@@ -196,11 +193,11 @@ public class Restart {
     public static void scheduleRealTimeRestart() {
         List<String> realTimeIntervals = (List<String>) RestartConfigHandler.CONFIG.realTimeInterval.get();
         if (realTimeIntervals == null || realTimeIntervals.isEmpty()) {
-            debugLog("No valid restart times found in the configuration.");
+            DebugLogger.debugLog("No valid restart times found in the configuration.");
             return;
         }
 
-        debugLog("Scheduling real-time restarts.");
+        DebugLogger.debugLog("Scheduling real-time restarts.");
         Calendar nowCal = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
@@ -223,20 +220,20 @@ public class Restart {
                     minDelayMillis = delayMillis;
                 }
             } catch (ParseException e) {
-                debugLog("Error parsing restart time: " + restartTimeStr, e);
+                DebugLogger.debugLog("Error parsing restart time: " + restartTimeStr, e);
             }
         }
 
         if (minDelayMillis == Long.MAX_VALUE) {
-            debugLog("No valid restart times found after processing.");
+            DebugLogger.debugLog("No valid restart times found after processing.");
             return;
         }
 
-        debugLog("Scheduled shutdown at: " + format.format(new Date(System.currentTimeMillis() + minDelayMillis)));
+        DebugLogger.debugLog("Scheduled shutdown at: " + format.format(new Date(System.currentTimeMillis() + minDelayMillis)));
         isRestarting = true;
 
         executorService.schedule(() -> {
-            debugLog("Timer task triggered.");
+            DebugLogger.debugLog("Timer task triggered.");
             shutdown();
         }, minDelayMillis, TimeUnit.MILLISECONDS);
 

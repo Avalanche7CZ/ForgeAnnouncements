@@ -13,9 +13,9 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -35,7 +35,7 @@ public class AnnouncementsCommand {
         CommandSourceStack source = context.getSource();
 
         if (!source.hasPermission(2)) {
-            source.sendFailure(new TextComponent("You do not have permission to use this command."));
+            source.sendFailure(Component.literal("You do not have permission to use this command."));
             return 0;
         }
 
@@ -58,16 +58,16 @@ public class AnnouncementsCommand {
         CommandSourceStack source = context.getSource();
 
         if (!source.hasPermission(2)) {
-            source.sendFailure(new TextComponent("You do not have permission to use this command."));
+            source.sendFailure(Component.literal("You do not have permission to use this command."));
             return 0;
         }
-        MutableComponent broadcastMessage = new TextComponent("");
+        MutableComponent broadcastMessage = Component.literal("");
 
         String[] words = message.split(" ");
         for (String word : words) {
             if (word.startsWith("http://") || word.startsWith("https://")) {
                 Style style = Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, word));
-                broadcastMessage.append(" ").append(new TextComponent(word).setStyle(style));
+                broadcastMessage.append(" ").append(Component.literal(word).setStyle(style));
             } else {
                 MutableComponent coloredWord = Annoucements.parseMessageWithColor(word);
                 broadcastMessage.append(" ").append(coloredWord);
@@ -85,14 +85,14 @@ public class AnnouncementsCommand {
                     MutableComponent footerMessage = Annoucements.parseMessageWithColor(footer);
                     MutableComponent finalBroadcastMessage = broadcastMessage;
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
-                        player.sendMessage(headerMessage, Util.NIL_UUID);
-                        player.sendMessage(finalBroadcastMessage, Util.NIL_UUID);
-                        player.sendMessage(footerMessage, Util.NIL_UUID);
+                        player.sendSystemMessage(headerMessage);
+                        player.sendSystemMessage(finalBroadcastMessage);
+                        player.sendSystemMessage(footerMessage);
                     });
                 } else {
                     MutableComponent finalBroadcastMessage1 = broadcastMessage;
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
-                        player.sendMessage(finalBroadcastMessage1, Util.NIL_UUID);
+                        player.sendSystemMessage(finalBroadcastMessage1);
                     });
                 }
                 break;
@@ -130,7 +130,7 @@ public class AnnouncementsCommand {
                 try {
                     bossBarColor = BossEvent.BossBarColor.valueOf(color.toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    source.sendFailure(new TextComponent("Invalid color: " + color));
+                    source.sendFailure(Component.literal("Invalid color: " + color));
                     return 0;
                 }
                 ServerBossEvent bossEvent = new ServerBossEvent(broadcastMessage, bossBarColor, BossEvent.BossBarOverlay.PROGRESS);
@@ -144,12 +144,12 @@ public class AnnouncementsCommand {
                 }, interval, TimeUnit.SECONDS);
                 break;
             default:
-                source.sendFailure(new TextComponent("Invalid message type: " + type));
+                source.sendFailure(Component.literal("Invalid message type: " + type));
                 return 0;
         }
 
         if (!source.hasPermission(requiredPermissionLevel)) {
-            source.sendFailure(new TextComponent("You do not have permission to use this command."));
+            source.sendFailure(Component.literal("You do not have permission to use this command."));
             return 0;
         }
 

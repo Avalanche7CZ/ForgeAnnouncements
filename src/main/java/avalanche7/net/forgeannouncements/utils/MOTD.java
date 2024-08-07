@@ -1,8 +1,8 @@
 package avalanche7.net.forgeannouncements.utils;
 
 import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
+import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,21 +11,26 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 
+
+
 @Mod.EventBusSubscriber(modid = "forgeannouncements")
 public class MOTD {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (MOTDConfigHandler.CONFIG.motdEnable.get()) {
-            Component motdMessage = createMOTDMessage((ServerPlayer) event.getPlayer());
-            event.getPlayer().sendMessage(motdMessage, Util.NIL_UUID);
+        if (!MainConfigHandler.CONFIG.motdEnable.get()) {
+                DebugLogger.debugLog("MOTD feature is disabled.");
+            return;
         }
+
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        Component motdMessage = createMOTDMessage(player);
+        player.sendSystemMessage(motdMessage);
     }
 
     private static Component createMOTDMessage(ServerPlayer player) {
         String[] lines = MOTDConfigHandler.CONFIG.motdMessage.get().split("\n");
-        TextComponent motdMessage = new TextComponent("");
-
+        MutableComponent motdMessage = Component.literal("");
         for (String line : lines) {
             motdMessage.append(parseColoredText(line, player)).append("\n");
         }
@@ -34,11 +39,11 @@ public class MOTD {
     }
 
     private static Component parseColoredText(String text, ServerPlayer player) {
-        TextComponent component = new TextComponent("");
+        MutableComponent component = Component.literal("");
         String[] parts = text.split("§");
 
         if (parts.length > 0) {
-            component.append(new TextComponent(parts[0]));
+            component.append(Component.literal(parts[0]));
         }
 
         for (int i = 1; i < parts.length; i++) {
@@ -47,7 +52,6 @@ public class MOTD {
                 String textPart = parts[i].substring(1);
                 Style style = Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.getByCode(colorCode)));
 
-                // Check for special tags
                 if (textPart.contains("[link=")) {
                     String[] linkParts = textPart.split("\\[link=", 2);
                     if (linkParts.length == 2) {
@@ -57,7 +61,7 @@ public class MOTD {
                             String url = remainingText.substring(0, endIndex);
                             remainingText = remainingText.substring(endIndex + 1).trim();
 
-                            component.append(new TextComponent(url)
+                            component.append(Component.literal(url)
                                     .setStyle(style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, formatUrl(url)))));
                             textPart = remainingText;
                         }
@@ -75,7 +79,7 @@ public class MOTD {
                             }
                             String initialText = commandParts[0].isEmpty() ? "/" : commandParts[0];
 
-                            component.append(new TextComponent(initialText + command)
+                            component.append(Component.literal(initialText + command)
                                     .setStyle(style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + command))));
                             if (!remainingText.isEmpty()) {
                                 component.append(" ");
@@ -92,13 +96,13 @@ public class MOTD {
                             hoverText = hoverText.substring(0, endIndex);
                             String remainingText = hoverParts[1].substring(endIndex + 1);
 
-                            component.append(new TextComponent(hoverParts[0])
-                                    .setStyle(style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(hoverText)))));
+                            component.append(Component.literal(hoverParts[0])
+                                    .setStyle(style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(hoverText)))));
                             textPart = remainingText;
                         }
                     }
                 } else if (textPart.contains("[divider]")) {
-                    component.append(new TextComponent("--------------------")
+                    component.append(Component.literal("--------------------")
                             .setStyle(style.withColor(TextColor.fromLegacyFormat(ChatFormatting.GRAY))));
                     textPart = "";
 
@@ -131,13 +135,12 @@ public class MOTD {
                         }
                     }
                 }
-                component.append(new TextComponent(textPart.trim()).setStyle(style));
+                component.append(Component.literal(textPart.trim()).setStyle(style));
             }
         }
 
         return component;
     }
-
     private static String formatUrl(String url) {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = "http://" + url;

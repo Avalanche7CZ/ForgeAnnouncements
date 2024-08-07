@@ -1,12 +1,12 @@
 package avalanche7.net.forgeannouncements.utils;
 
+import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
 import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.Util;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,11 +16,17 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = "forgeannouncements")
 public class Mentions {
-
     @SubscribeEvent
     public static void onChatMessage(ServerChatEvent event) {
+
+        if (!MainConfigHandler.CONFIG.mentionsEnable.get()) {
+            DebugLogger.debugLog("Mention feature is disabled.");
+            return;
+        }
+
         String mentionSymbol = MentionConfigHandler.MENTION_SYMBOL.get();
-        String message = event.getMessage();
+        Component messageComponent = event.getMessage();
+        String message = messageComponent.getString();
         ServerPlayer sender = event.getPlayer();
         Level world = sender.getLevel();
         List<ServerPlayer> players = world.getServer().getPlayerList().getPlayers();
@@ -31,10 +37,10 @@ public class Mentions {
             boolean hasPermission = PermissionsHandler.hasPermission(sender, PermissionsHandler.MENTION_EVERYONE_PERMISSION);
             boolean hasPermissionLevel = sender.hasPermissions(PermissionsHandler.MENTION_EVERYONE_PERMISSION_LEVEL);
             if (!hasPermission && !hasPermissionLevel) {
-                sender.sendMessage(new TextComponent("You do not have permission to mention everyone."), Util.NIL_UUID);
+                sender.sendSystemMessage(Component.literal("You do not have permission to mention everyone."));
                 return;
             }
-            System.out.println("Mention everyone detected");
+             DebugLogger.debugLog("Mention everyone detected");
             notifyEveryone(players, sender, message);
             event.setCanceled(true);
         } else {
@@ -44,13 +50,13 @@ public class Mentions {
                     boolean hasPermission = PermissionsHandler.hasPermission(sender, PermissionsHandler.MENTION_PLAYER_PERMISSION);
                     boolean hasPermissionLevel = sender.hasPermissions(PermissionsHandler.MENTION_PLAYER_PERMISSION_LEVEL);
                     if (!hasPermission && !hasPermissionLevel) {
-                        sender.sendMessage(new TextComponent("You do not have permission to mention players."), Util.NIL_UUID);
+                        sender.sendSystemMessage(Component.literal("You do not have permission to mention players."));
                         return;
                     }
-                    System.out.println("Mention player detected: " + player.getName().getString());
+                    DebugLogger.debugLog("Mention player detected: " + player.getName().getString());
                     notifyPlayer(player, sender, message);
                     message = message.replaceFirst(mention, "");
-                    event.setComponent(new TextComponent(message));
+                    event.setMessage(Component.literal(message));
                 }
             }
         }
@@ -73,11 +79,8 @@ public class Mentions {
     }
 
     private static void sendMentionNotification(ServerPlayer player, String chatMessage, String titleMessage) {
-        player.displayClientMessage(new TextComponent(chatMessage), false);
-        player.connection.send(new ClientboundSetTitleTextPacket(new TextComponent(titleMessage)));
+        player.displayClientMessage(Component.literal(chatMessage), false);
+        player.connection.send(new ClientboundSetTitleTextPacket(Component.literal(titleMessage)));
         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 }
-
-
-

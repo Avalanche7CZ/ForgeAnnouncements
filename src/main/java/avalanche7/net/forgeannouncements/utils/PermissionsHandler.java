@@ -1,12 +1,7 @@
 package avalanche7.net.forgeannouncements.utils;
 
-import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.api.permissions.DefaultPermissionLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-
 import java.util.logging.Logger;
 
 
@@ -27,28 +22,28 @@ public class PermissionsHandler {
         if (ModList.get().isLoaded("luckperms")) {
             checker = new LuckPermsChecker();
             LOGGER.info("Using LuckPermsChecker");
-        } else if (ModList.get().isLoaded("forgeessentials")) {
-            try {
-                checker = new ForgeEssentialsChecker();
-                LOGGER.info("Using ForgeEssentialsChecker");
-            } catch (NoClassDefFoundError e) {
-                LOGGER.info("ForgeEssentials mod not found, falling back to ForgePermissionChecker");
-                checker = new ForgePermissionChecker();
-            }
+//        } else if (ModList.get().isLoaded("forgeessentials")) {
+//            try {
+//                checker = new ForgeEssentialsChecker();
+//                LOGGER.info("Using ForgeEssentialsChecker");
+//            } catch (NoClassDefFoundError e) {
+//                LOGGER.info("ForgeEssentials mod not found, falling back to ForgePermissionChecker");
+//                checker = new ForgePermissionChecker();
+//            }
         } else {
             checker = new ForgePermissionChecker();
             LOGGER.info("Using ForgePermissionChecker");
         }
     }
-    @SubscribeEvent
-    public static void onServerStarting(ServerStartingEvent event) {
-        if (checker instanceof ForgeEssentialsChecker) {
-            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_EVERYONE_PERMISSION, "Allows mentioning everyone");
-            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_PLAYER_PERMISSION, "Allows mentioning a player");
-        } else {
-            LOGGER.warning("Cannot register permissions. ForgeEssentials mod is not present [NOT ERROR].");
-        }
-    }
+//    @SubscribeEvent
+//    public static void onServerStarting(ServerStartingEvent event) {
+//        if (checker instanceof ForgeEssentialsChecker) {
+//            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_EVERYONE_PERMISSION, "Allows mentioning everyone");
+//            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_PLAYER_PERMISSION, "Allows mentioning a player");
+//        } else {
+//            LOGGER.warning("Cannot register permissions. ForgeEssentials mod is not present [NOT ERROR].");
+//        }
+//    }
 
     public static boolean hasPermission(ServerPlayer player, String permission) {
         return checker.hasPermission(player, permission);
@@ -74,19 +69,19 @@ public class PermissionsHandler {
         }
     }
 
-    public static class ForgeEssentialsChecker implements PermissionChecker {
-        @Override
-        public boolean hasPermission(ServerPlayer player, String permission) {
-            return APIRegistry.perms.checkPermission(player, permission);
-        }
-
-        public static void registerPermission(String permission, String description) {
-            DefaultPermissionLevel level = DefaultPermissionLevel.NONE;
-
-            APIRegistry.perms.registerPermission(permission, level, description);
-
-        }
-    }
+//    public static class ForgeEssentialsChecker implements PermissionChecker {
+//        @Override
+//        public boolean hasPermission(ServerPlayer player, String permission) {
+//            return APIRegistry.perms.checkPermission(player, permission);
+//        }
+//
+//        public static void registerPermission(String permission, String description) {
+//            DefaultPermissionLevel level = DefaultPermissionLevel.NONE;
+//
+//            APIRegistry.perms.registerPermission(permission, level, description);
+//
+//        }
+//    }
 
     public static class ForgePermissionChecker implements PermissionChecker {
         @Override

@@ -1,6 +1,7 @@
 package avalanche7.net.forgeannouncements.utils;
 
 import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
+import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
@@ -26,17 +27,20 @@ public class Annoucements {
 
     public static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Random random = new Random();
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static MinecraftServer server;
 
     @SubscribeEvent
     public static void onServerStarting(ServerStartingEvent event) {
+        if (!MainConfigHandler.CONFIG.announcementsEnable.get()) {
+            DebugLogger.debugLog("Announcements feature is disabled.");
+            return;
+        }
         server = event.getServer();
-        LOGGER.info("Server is starting, scheduling announcements.");
+        DebugLogger.debugLog("Server is starting, scheduling announcements.");
         scheduleAnnouncements();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!scheduler.isShutdown()) {
-                LOGGER.info("Server is stopping, shutting down scheduler...");
+                DebugLogger.debugLog("Server is stopping, shutting down scheduler...");
                 scheduler.shutdown();
                 try {
                     if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -46,7 +50,7 @@ public class Annoucements {
                     scheduler.shutdownNow();
                     Thread.currentThread().interrupt();
                 }
-                LOGGER.info("Scheduler has been shut down.");
+                DebugLogger.debugLog("Scheduler has been shut down.");
             }
         }));
     }
@@ -54,50 +58,34 @@ public class Annoucements {
     public static void scheduleAnnouncements() {
         if (AnnouncementsConfigHandler.CONFIG.globalEnable.get()) {
             long globalInterval = AnnouncementsConfigHandler.CONFIG.globalInterval.get();
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Scheduling global messages with interval: {} seconds", globalInterval);
-            }
+            DebugLogger.debugLog("Scheduling global messages with interval: {} seconds", globalInterval);
             scheduler.scheduleAtFixedRate(Annoucements::broadcastGlobalMessages, globalInterval, globalInterval, TimeUnit.SECONDS);
         } else {
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Global messages are disabled.");
-            }
+            DebugLogger.debugLog("Global messages are disabled.");
         }
 
         if (AnnouncementsConfigHandler.CONFIG.actionbarEnable.get()) {
             long actionbarInterval = AnnouncementsConfigHandler.CONFIG.actionbarInterval.get();
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Scheduling actionbar messages with interval: {} seconds", actionbarInterval);
-            }
+            DebugLogger.debugLog("Scheduling actionbar messages with interval: {} seconds", actionbarInterval);
             scheduler.scheduleAtFixedRate(Annoucements::broadcastActionbarMessages, actionbarInterval, actionbarInterval, TimeUnit.SECONDS);
         } else {
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Actionbar messages are disabled.");
-            }
+            DebugLogger.debugLog("Actionbar messages are disabled.");
         }
 
         if (AnnouncementsConfigHandler.CONFIG.titleEnable.get()) {
             long titleInterval = AnnouncementsConfigHandler.CONFIG.titleInterval.get();
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Scheduling title messages with interval: {} seconds", titleInterval);
-            }
+            DebugLogger.debugLog("Scheduling title messages with interval: {} seconds", titleInterval);
             scheduler.scheduleAtFixedRate(Annoucements::broadcastTitleMessages, titleInterval, titleInterval, TimeUnit.SECONDS);
         } else {
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Title messages are disabled.");
-            }
+            DebugLogger.debugLog("Title messages are disabled.");
         }
 
         if (AnnouncementsConfigHandler.CONFIG.bossbarEnable.get()) {
             long bossbarInterval = AnnouncementsConfigHandler.CONFIG.bossbarInterval.get();
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Scheduling bossbar messages with interval: {} seconds", bossbarInterval);
-            }
+            DebugLogger.debugLog("Scheduling bossbar messages with interval: {} seconds", bossbarInterval);
             scheduler.scheduleAtFixedRate(Annoucements::broadcastBossbarMessages, bossbarInterval, bossbarInterval, TimeUnit.SECONDS);
         } else {
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Bossbar messages are disabled.");
-            }
+            DebugLogger.debugLog("Bossbar messages are disabled.");
         }
     }
 
@@ -124,20 +112,18 @@ public class Annoucements {
 
             if (AnnouncementsConfigHandler.CONFIG.headerAndFooter.get()) {
                 server.getPlayerList().getPlayers().forEach(player -> {
-                    player.sendMessage(parseMessageWithColor(header), player.getUUID());
-                    player.sendMessage(message, player.getUUID());
-                    player.sendMessage(parseMessageWithColor(footer), player.getUUID());
+                    player.sendSystemMessage(parseMessageWithColor(header));
+                    player.sendSystemMessage(message);
+                    player.sendSystemMessage(parseMessageWithColor(footer));
                 });
             } else {
                 server.getPlayerList().getPlayers().forEach(player -> {
-                    player.sendMessage(message, player.getUUID());
+                    player.sendSystemMessage(message);
                 });
             }
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Broadcasted global message: {}", message.getString());
-            }
+             DebugLogger.debugLog("Broadcasted global message: {}", message.getString());
         } else {
-            LOGGER.warn("Server instance is null.");
+            DebugLogger.debugLog("Server instance is null.");
         }
     }
 
@@ -158,11 +144,9 @@ public class Annoucements {
             server.getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(new ClientboundSetActionBarTextPacket(message));
             });
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Broadcasted actionbar message: {}", message.getString());
-            }
+            DebugLogger.debugLog("Broadcasted actionbar message: {}", message.getString());
         } else {
-            LOGGER.warn("Server instance is null.");
+            DebugLogger.debugLog("Server instance is null.");
         }
     }
 
@@ -184,11 +168,9 @@ public class Annoucements {
                 player.connection.send(new ClientboundClearTitlesPacket(false));
                 player.connection.send(new ClientboundSetTitleTextPacket(message));
             });
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Broadcasted title message: {}", message.getString());
-            }
+             DebugLogger.debugLog("Broadcasted title message: {}", message.getString());
         } else {
-            LOGGER.warn("Server instance is null.");
+            DebugLogger.debugLog("Server instance is null.");
         }
     }
 
@@ -214,9 +196,7 @@ public class Annoucements {
             server.getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(addPacket);
             });
-            if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                LOGGER.info("Broadcasted bossbar message: {}", message.getString());
-            }
+            DebugLogger.debugLog("Broadcasted bossbar message: {}", message.getString());
 
             scheduler.schedule(() -> {
                 if (server != null) {
@@ -224,27 +204,25 @@ public class Annoucements {
                     server.getPlayerList().getPlayers().forEach(player -> {
                         player.connection.send(removePacket);
                     });
-                    if (AnnouncementsConfigHandler.CONFIG.debugEnable.get()) {
-                        LOGGER.info("Removed bossbar message after {} seconds", bossbarTime);
-                    }
+                    DebugLogger.debugLog("Removed bossbar message after {} seconds", bossbarTime);
                 } else {
-                    LOGGER.warn("Server instance is null.");
+                    DebugLogger.debugLog("Server instance is null.");
                 }
             }, bossbarTime, TimeUnit.SECONDS);
         } else {
-            LOGGER.warn("Server instance is null.");
+            DebugLogger.debugLog("Server instance is null.");
         }
     }
 
     public static MutableComponent parseMessageWithColor(String rawMessage) {
         rawMessage = rawMessage.replace("&", "§");
 
-        MutableComponent message = new TextComponent("");
+        MutableComponent message = Component.literal("");
         String[] parts = rawMessage.split("§");
 
         Style style = Style.EMPTY;
         if (!rawMessage.startsWith("§")) {
-            message.append(new TextComponent(parts[0]).setStyle(style));
+            message.append(Component.literal(parts[0]).setStyle(style));
         }
 
         for (int i = rawMessage.startsWith("§") ? 0 : 1; i < parts.length; i++) {
@@ -256,7 +234,7 @@ public class Annoucements {
             String text = parts[i].substring(1);
 
             style = applyColorCode(style, colorCode);
-            MutableComponent component = new TextComponent(text).setStyle(style);
+            MutableComponent component = Component.literal(text).setStyle(style);
             message.append(component);
         }
 
@@ -264,10 +242,10 @@ public class Annoucements {
     }
 
     private static MutableComponent createClickableMessage(String rawMessage) {
-        MutableComponent message = new TextComponent("");
+        MutableComponent message = Component.literal("");
         String[] parts = rawMessage.split(" ");
         for (int i = 0; i < parts.length; i++) {
-            MutableComponent part = new TextComponent(parts[i]);
+            MutableComponent part = Component.literal(parts[i]);
             if (parts[i].startsWith("http://") || parts[i].startsWith("https://")) {
                 part.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, parts[i])));
             }
