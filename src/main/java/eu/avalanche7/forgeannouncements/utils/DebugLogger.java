@@ -1,6 +1,6 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 

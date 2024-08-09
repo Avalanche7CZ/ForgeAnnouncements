@@ -1,8 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
-import avalanche7.net.forgeannouncements.configs.RestartConfigHandler;
-import com.mojang.logging.LogUtils;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.RestartConfigHandler;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
@@ -18,7 +17,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.slf4j.Logger;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;

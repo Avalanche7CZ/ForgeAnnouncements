@@ -1,8 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
-import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
-import com.mojang.logging.LogUtils;
+import eu.avalanche7.forgeannouncements.configs.AnnouncementsConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -14,7 +13,6 @@ import net.minecraft.world.BossEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Random;

@@ -1,7 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
-import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MOTDConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;

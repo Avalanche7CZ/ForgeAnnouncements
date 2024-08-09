@@ -1,11 +1,12 @@
-package avalanche7.net.forgeannouncements;
+package eu.avalanche7.forgeannouncements;
 
 import avalanche7.net.forgeannouncements.configs.*;
-import avalanche7.net.forgeannouncements.utils.DebugLogger;
-import avalanche7.net.forgeannouncements.utils.Mentions;
-import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
-import avalanche7.net.forgeannouncements.utils.Restart;
+import eu.avalanche7.forgeannouncements.utils.DebugLogger;
+import eu.avalanche7.forgeannouncements.utils.Mentions;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
+import eu.avalanche7.forgeannouncements.utils.Restart;
 import com.mojang.logging.LogUtils;
+import eu.avalanche7.forgeannouncements.configs.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;

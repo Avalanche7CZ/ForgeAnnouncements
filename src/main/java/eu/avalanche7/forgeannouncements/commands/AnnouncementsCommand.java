@@ -1,15 +1,14 @@
-package avalanche7.net.forgeannouncements.commands;
+package eu.avalanche7.forgeannouncements.commands;
 
-import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
-import avalanche7.net.forgeannouncements.utils.Annoucements;
-import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
+import eu.avalanche7.forgeannouncements.configs.AnnouncementsConfigHandler;
+import eu.avalanche7.forgeannouncements.utils.Annoucements;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;

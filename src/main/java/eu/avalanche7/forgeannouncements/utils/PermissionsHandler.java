@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.ModList;

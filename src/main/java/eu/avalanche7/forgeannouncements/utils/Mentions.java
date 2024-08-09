@@ -1,7 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MainConfigHandler;
-import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MentionConfigHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;

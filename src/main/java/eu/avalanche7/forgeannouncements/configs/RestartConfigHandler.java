@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.configs;
+package eu.avalanche7.forgeannouncements.configs;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
