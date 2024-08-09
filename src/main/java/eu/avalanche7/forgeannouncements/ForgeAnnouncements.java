@@ -7,6 +7,7 @@ import eu.avalanche7.forgeannouncements.configs.MentionConfigHandler;
 import eu.avalanche7.forgeannouncements.utils.Announcements;
 import eu.avalanche7.forgeannouncements.utils.MOTD;
 import eu.avalanche7.forgeannouncements.utils.Mentions;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraftforge.common.MinecraftForge;
@@ -48,6 +49,7 @@ public class ForgeAnnouncements {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new MOTD());
         MinecraftForge.EVENT_BUS.register(new Mentions());
+        MinecraftForge.EVENT_BUS.register(new PermissionsHandler());
     }
 
     @Mod.EventHandler
@@ -61,6 +63,7 @@ public class ForgeAnnouncements {
 
         UpdateChecker.checkForUpdates();
         Announcements.onServerStarting(event);
+        PermissionsHandler.onServerStarting(event);
         AnnouncementsCommand.registerCommands(event);
     }
 

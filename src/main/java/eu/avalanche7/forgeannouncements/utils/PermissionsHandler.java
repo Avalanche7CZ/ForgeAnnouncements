@@ -1,12 +1,23 @@
 package eu.avalanche7.forgeannouncements.utils;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.api.permissions.IPermissionsHelper;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.context.IContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod.EventBusSubscriber
+
+@Mod.EventBusSubscriber(modid = "forgeannouncements")
 public class PermissionsHandler {
 
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final String MENTION_EVERYONE_PERMISSION = "forgeannouncements.mention.everyone";
     public static final String MENTION_PLAYER_PERMISSION = "forgeannouncements.mention.player";
     public static final int MENTION_EVERYONE_PERMISSION_LEVEL = 2;
@@ -36,6 +47,16 @@ public class PermissionsHandler {
         boolean hasPermission(EntityPlayerMP player, String permission);
     }
 
+    @Mod.EventHandler
+    public static void onServerStarting(FMLServerStartingEvent event) {
+        if (checker instanceof ForgeEssentialsChecker) {
+            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_EVERYONE_PERMISSION, DefaultPermissionLevel.NONE, "Allows mentioning everyone");
+            ((ForgeEssentialsChecker) checker).registerPermission(MENTION_PLAYER_PERMISSION, DefaultPermissionLevel.NONE, "Allows mentioning a player");
+        } else {
+            LOGGER.info("Cannot register permissions. ForgeEssentials mod is not present [NOT ERROR].");
+        }
+    }
+
     public static class LuckPermsChecker implements PermissionChecker {
         @Override
         public boolean hasPermission(EntityPlayerMP player, String permission) {
@@ -51,10 +72,19 @@ public class PermissionsHandler {
     }
 
     public static class ForgeEssentialsChecker implements PermissionChecker {
+        private final IPermissionsHelper permissionsHelper = APIRegistry.perms;
+
         @Override
         public boolean hasPermission(EntityPlayerMP player, String permission) {
-            //return com.forgeessentials.api.permissions.RegGroupManager.hasPermission(player, permission);
-            return false;
+            return permissionsHelper != null && permissionsHelper.checkPermission(player, permission);
+        }
+
+        public void registerPermission(String permission, DefaultPermissionLevel level, String description) {
+            if (permissionsHelper != null) {
+                permissionsHelper.registerPermission(permission, level, description);
+            } else {
+                LOGGER.error("PermissionsHelper is null. Cannot register permission: " + permission);
+            }
         }
     }
 

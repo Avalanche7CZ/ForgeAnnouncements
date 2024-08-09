@@ -75,6 +75,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly('net.luckperms:api:5.4')
+    compileOnly files("libs/forgeessentials-1.12.2-12.4.126-server.jar")
 
 }
 
