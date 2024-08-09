@@ -72,14 +72,15 @@ public class PermissionsHandler {
     }
 
     public static class ForgeEssentialsChecker implements PermissionChecker {
-        private final IPermissionsHelper permissionsHelper = APIRegistry.perms;
 
         @Override
         public boolean hasPermission(EntityPlayerMP player, String permission) {
+            IPermissionsHelper permissionsHelper = APIRegistry.perms;
             return permissionsHelper != null && permissionsHelper.checkPermission(player, permission);
         }
 
         public void registerPermission(String permission, DefaultPermissionLevel level, String description) {
+            IPermissionsHelper permissionsHelper = APIRegistry.perms;
             if (permissionsHelper != null) {
                 permissionsHelper.registerPermission(permission, level, description);
             } else {
