@@ -1,11 +1,12 @@
-package avalanche7.net.forgeannouncements;
+package eu.avalanche7.forgeannouncements;
 
-import avalanche7.net.forgeannouncements.commands.AnnouncementsCommand;
-import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
-import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
-import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
-import avalanche7.net.forgeannouncements.utils.Announcements;
-import avalanche7.net.forgeannouncements.utils.MOTD;
+import eu.avalanche7.forgeannouncements.commands.AnnouncementsCommand;
+import eu.avalanche7.forgeannouncements.configs.MOTDConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.AnnouncementsConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MentionConfigHandler;
+import eu.avalanche7.forgeannouncements.utils.Announcements;
+import eu.avalanche7.forgeannouncements.utils.MOTD;
+import eu.avalanche7.forgeannouncements.utils.Mentions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,7 +47,7 @@ public class ForgeAnnouncements {
         MentionConfigHandler.init(mentionsConfig);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new MOTD());
-        MinecraftForge.EVENT_BUS.register(new avalanche7.net.forgeannouncements.utils.Mentions());
+        MinecraftForge.EVENT_BUS.register(new Mentions());
     }
 
     @Mod.EventHandler

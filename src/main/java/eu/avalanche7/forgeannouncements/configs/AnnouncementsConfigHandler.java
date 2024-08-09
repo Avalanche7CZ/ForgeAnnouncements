@@ -1,11 +1,10 @@
-package avalanche7.net.forgeannouncements.configs;
+package eu.avalanche7.forgeannouncements.configs;
 
-import avalanche7.net.forgeannouncements.ForgeAnnouncements;
+import eu.avalanche7.forgeannouncements.ForgeAnnouncements;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 

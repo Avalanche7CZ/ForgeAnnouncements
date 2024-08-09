@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.Loader;

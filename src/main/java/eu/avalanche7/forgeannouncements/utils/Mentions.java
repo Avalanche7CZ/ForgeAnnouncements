@@ -1,6 +1,6 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MentionConfigHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketTitle;
 import net.minecraft.util.SoundCategory;

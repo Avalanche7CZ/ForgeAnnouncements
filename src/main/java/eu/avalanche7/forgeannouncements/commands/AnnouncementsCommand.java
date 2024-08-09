@@ -1,6 +1,6 @@
-package avalanche7.net.forgeannouncements.commands;
+package eu.avalanche7.forgeannouncements.commands;
 
-import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
