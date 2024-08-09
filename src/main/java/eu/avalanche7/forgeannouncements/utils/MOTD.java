@@ -114,7 +114,7 @@ public class MOTD {
                         if (endIndex != -1) {
                             titleText = titleText.substring(0, endIndex);
                             String remainingText = titleParts[1].substring(endIndex + 1);
-                            Component titleComponent = Announcements.parseMessageWithColor("§" + colorCode + titleText);
+                            Component titleComponent = ColorUtils.parseMessageWithColor("§" + colorCode + titleText);
                             ClientboundSetTitleTextPacket titlePacket = new ClientboundSetTitleTextPacket(titleComponent);
                             player.connection.send(titlePacket);
                             textPart = remainingText;
@@ -128,7 +128,7 @@ public class MOTD {
                         if (endIndex != -1) {
                             subtitleText = subtitleText.substring(0, endIndex);
                             String remainingText = subtitleParts[1].substring(endIndex + 1);
-                            Component subtitleComponent = Announcements.parseMessageWithColor("§" + colorCode + subtitleText);
+                            Component subtitleComponent = ColorUtils.parseMessageWithColor("§" + colorCode + subtitleText);
                             ClientboundSetSubtitleTextPacket subtitlePacket = new ClientboundSetSubtitleTextPacket(subtitleComponent);
                             player.connection.send(subtitlePacket);
                             textPart = remainingText;

@@ -1,6 +1,5 @@
 package eu.avalanche7.forgeannouncements;
 
-import avalanche7.net.forgeannouncements.configs.*;
 import eu.avalanche7.forgeannouncements.utils.DebugLogger;
 import eu.avalanche7.forgeannouncements.utils.Mentions;
 import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
