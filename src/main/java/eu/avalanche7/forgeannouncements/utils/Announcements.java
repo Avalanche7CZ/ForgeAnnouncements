@@ -21,7 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Mod.EventBusSubscriber(modid = "forgeannouncements", bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class Annoucements {
+public class Announcements {
 
     public static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final Random random = new Random();
@@ -57,7 +57,7 @@ public class Annoucements {
         if (AnnouncementsConfigHandler.CONFIG.globalEnable.get()) {
             long globalInterval = AnnouncementsConfigHandler.CONFIG.globalInterval.get();
             DebugLogger.debugLog("Scheduling global messages with interval: {} seconds", globalInterval);
-            scheduler.scheduleAtFixedRate(Annoucements::broadcastGlobalMessages, globalInterval, globalInterval, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(Announcements::broadcastGlobalMessages, globalInterval, globalInterval, TimeUnit.SECONDS);
         } else {
             DebugLogger.debugLog("Global messages are disabled.");
         }
@@ -65,7 +65,7 @@ public class Annoucements {
         if (AnnouncementsConfigHandler.CONFIG.actionbarEnable.get()) {
             long actionbarInterval = AnnouncementsConfigHandler.CONFIG.actionbarInterval.get();
             DebugLogger.debugLog("Scheduling actionbar messages with interval: {} seconds", actionbarInterval);
-            scheduler.scheduleAtFixedRate(Annoucements::broadcastActionbarMessages, actionbarInterval, actionbarInterval, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(Announcements::broadcastActionbarMessages, actionbarInterval, actionbarInterval, TimeUnit.SECONDS);
         } else {
             DebugLogger.debugLog("Actionbar messages are disabled.");
         }
@@ -73,7 +73,7 @@ public class Annoucements {
         if (AnnouncementsConfigHandler.CONFIG.titleEnable.get()) {
             long titleInterval = AnnouncementsConfigHandler.CONFIG.titleInterval.get();
             DebugLogger.debugLog("Scheduling title messages with interval: {} seconds", titleInterval);
-            scheduler.scheduleAtFixedRate(Annoucements::broadcastTitleMessages, titleInterval, titleInterval, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(Announcements::broadcastTitleMessages, titleInterval, titleInterval, TimeUnit.SECONDS);
         } else {
             DebugLogger.debugLog("Title messages are disabled.");
         }
@@ -81,7 +81,7 @@ public class Annoucements {
         if (AnnouncementsConfigHandler.CONFIG.bossbarEnable.get()) {
             long bossbarInterval = AnnouncementsConfigHandler.CONFIG.bossbarInterval.get();
             DebugLogger.debugLog("Scheduling bossbar messages with interval: {} seconds", bossbarInterval);
-            scheduler.scheduleAtFixedRate(Annoucements::broadcastBossbarMessages, bossbarInterval, bossbarInterval, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(Announcements::broadcastBossbarMessages, bossbarInterval, bossbarInterval, TimeUnit.SECONDS);
         } else {
             DebugLogger.debugLog("Bossbar messages are disabled.");
         }

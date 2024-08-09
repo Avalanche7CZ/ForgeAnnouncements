@@ -1,7 +1,7 @@
 package eu.avalanche7.forgeannouncements.commands;
 
 import eu.avalanche7.forgeannouncements.configs.AnnouncementsConfigHandler;
-import eu.avalanche7.forgeannouncements.utils.Annoucements;
+import eu.avalanche7.forgeannouncements.utils.Announcements;
 import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -38,8 +38,8 @@ public class AnnouncementsCommand {
             return 0;
         }
 
-        MutableComponent titleComponent = Annoucements.parseMessageWithColor(title);
-        MutableComponent subtitleComponent = subtitle != null ? Annoucements.parseMessageWithColor(subtitle) : null;
+        MutableComponent titleComponent = Announcements.parseMessageWithColor(title);
+        MutableComponent subtitleComponent = subtitle != null ? Announcements.parseMessageWithColor(subtitle) : null;
 
         source.getServer().getPlayerList().getPlayers().forEach(player -> {
             player.connection.send(new ClientboundClearTitlesPacket(false));
@@ -68,7 +68,7 @@ public class AnnouncementsCommand {
                 Style style = Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, word));
                 broadcastMessage.append(" ").append(Component.literal(word).setStyle(style));
             } else {
-                MutableComponent coloredWord = Annoucements.parseMessageWithColor(word);
+                MutableComponent coloredWord = Announcements.parseMessageWithColor(word);
                 broadcastMessage.append(" ").append(coloredWord);
             }
         }
@@ -80,8 +80,8 @@ public class AnnouncementsCommand {
                 if (headerFooter) {
                     String header = AnnouncementsConfigHandler.CONFIG.header.get();
                     String footer = AnnouncementsConfigHandler.CONFIG.footer.get();
-                    MutableComponent headerMessage = Annoucements.parseMessageWithColor(header);
-                    MutableComponent footerMessage = Annoucements.parseMessageWithColor(footer);
+                    MutableComponent headerMessage = Announcements.parseMessageWithColor(header);
+                    MutableComponent footerMessage = Announcements.parseMessageWithColor(footer);
                     MutableComponent finalBroadcastMessage = broadcastMessage;
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
                         player.sendSystemMessage(headerMessage);
@@ -113,8 +113,8 @@ public class AnnouncementsCommand {
                     title = String.join(" ", java.util.Arrays.copyOfRange(words, 0, separatorIndex));
                     subtitle = String.join(" ", java.util.Arrays.copyOfRange(words, separatorIndex + 1, words.length));
                 }
-                MutableComponent titleComponent = Annoucements.parseMessageWithColor(title);
-                MutableComponent subtitleComponent = Annoucements.parseMessageWithColor(subtitle);
+                MutableComponent titleComponent = Announcements.parseMessageWithColor(title);
+                MutableComponent subtitleComponent = Announcements.parseMessageWithColor(subtitle);
                 source.getServer().getPlayerList().getPlayers().forEach(player -> {
                     player.connection.send(new ClientboundClearTitlesPacket(false));
                     player.connection.send(new ClientboundSetTitleTextPacket(titleComponent));
@@ -136,7 +136,7 @@ public class AnnouncementsCommand {
                 source.getServer().getPlayerList().getPlayers().forEach(player -> {
                     bossEvent.addPlayer(player);
                 });
-                Annoucements.scheduler.schedule(() -> {
+                Announcements.scheduler.schedule(() -> {
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
                         bossEvent.removePlayer(player);
                     });
