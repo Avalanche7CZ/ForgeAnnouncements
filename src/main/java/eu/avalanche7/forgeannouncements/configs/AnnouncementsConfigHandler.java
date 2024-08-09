@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.configs;
+package eu.avalanche7.forgeannouncements.configs;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -14,7 +14,6 @@ public class AnnouncementsConfigHandler {
 
     public static final ForgeConfigSpec SERVER_CONFIG;
     public static final Config CONFIG;
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     static {
         final Pair<Config, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Config::new);
@@ -23,9 +22,7 @@ public class AnnouncementsConfigHandler {
     }
 
     public static class Config {
-        public final ForgeConfigSpec.BooleanValue debugEnable;
         public final ForgeConfigSpec.ConfigValue<String> orderMode;
-
         public final ForgeConfigSpec.BooleanValue globalEnable;
         public final ForgeConfigSpec.BooleanValue headerAndFooter;
         public final ForgeConfigSpec.IntValue globalInterval;
@@ -50,9 +47,6 @@ public class AnnouncementsConfigHandler {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> bossbarMessages;
 
         public Config(ForgeConfigSpec.Builder builder) {
-
-            debugEnable = builder.comment("Enable debug logging")
-                    .define("Debug.Enable", false);
 
             builder.comment("Auto Broadcast Settings")
                     .push("Auto_Broadcast");
@@ -89,7 +83,6 @@ public class AnnouncementsConfigHandler {
                             ),
                             obj -> obj instanceof String);
 
-            // Actionbar Messages
             actionbarEnable = builder.comment("Enable actionbar messages")
                     .define("Actionbar_Messages.Enable", true);
 
@@ -103,7 +96,6 @@ public class AnnouncementsConfigHandler {
                             ),
                             obj -> obj instanceof String);
 
-            // Title Messages
             titleEnable = builder.comment("Enable title messages")
                     .define("Title_Messages.Enable", true);
 
@@ -117,7 +109,6 @@ public class AnnouncementsConfigHandler {
                             ),
                             obj -> obj instanceof String);
 
-            // Bossbar Messages
             bossbarEnable = builder.comment("Enable bossbar messages")
                     .define("Bossbar_Messages.Enable", true);
 
@@ -149,21 +140,5 @@ public class AnnouncementsConfigHandler {
                 .build();
         file.load();
         config.setConfig(file);
-        /*
-        LOGGER.info("Configuration loaded from file: {}", path);
-        LOGGER.info("Global Enable: {}", CONFIG.globalEnable.get());
-        LOGGER.info("Global Interval: {}", CONFIG.globalInterval.get());
-        LOGGER.info("Global Messages: {}", CONFIG.globalMessages.get());
-        LOGGER.info("Actionbar Enable: {}", CONFIG.actionbarEnable.get());
-        LOGGER.info("Actionbar Interval: {}", CONFIG.actionbarInterval.get());
-        LOGGER.info("Actionbar Messages: {}", CONFIG.actionbarMessages.get());
-        LOGGER.info("Title Enable: {}", CONFIG.titleEnable.get());
-        LOGGER.info("Title Interval: {}", CONFIG.titleInterval.get());
-        LOGGER.info("Title Messages: {}", CONFIG.titleMessages.get());
-        LOGGER.info("Bossbar Enable: {}", CONFIG.bossbarEnable.get());
-        LOGGER.info("Bossbar Interval: {}", CONFIG.bossbarInterval.get());
-        LOGGER.info("Bossbar Bar Time: {}", CONFIG.bossbarTime.get());
-        LOGGER.info("Bossbar Messages: {}", CONFIG.bossbarMessages.get());
-         */
     }
 }

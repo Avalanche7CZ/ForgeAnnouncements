@@ -1,6 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MOTDConfigHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.*;
@@ -16,12 +17,15 @@ public class MOTD {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (MOTDConfigHandler.CONFIG.motdEnable.get()) {
-            Component motdMessage = createMOTDMessage((ServerPlayer) event.getPlayer());
-            event.getPlayer().sendMessage(motdMessage, Util.NIL_UUID);
+        if (!MainConfigHandler.CONFIG.motdEnable.get()) {
+            DebugLogger.debugLog("MOTD feature is disabled.");
+            return;
         }
-    }
 
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        Component motdMessage = createMOTDMessage(player);
+        event.getPlayer().sendMessage(motdMessage, Util.NIL_UUID);
+    }
     private static Component createMOTDMessage(ServerPlayer player) {
         String[] lines = MOTDConfigHandler.CONFIG.motdMessage.get().split("\n");
         TextComponent motdMessage = new TextComponent("");
@@ -110,7 +114,7 @@ public class MOTD {
                         if (endIndex != -1) {
                             titleText = titleText.substring(0, endIndex);
                             String remainingText = titleParts[1].substring(endIndex + 1);
-                            Component titleComponent = Annoucements.parseMessageWithColor("§" + colorCode + titleText);
+                            Component titleComponent = ColorUtils.parseMessageWithColor("§" + colorCode + titleText);
                             ClientboundSetTitleTextPacket titlePacket = new ClientboundSetTitleTextPacket(titleComponent);
                             player.connection.send(titlePacket);
                             textPart = remainingText;
@@ -124,7 +128,7 @@ public class MOTD {
                         if (endIndex != -1) {
                             subtitleText = subtitleText.substring(0, endIndex);
                             String remainingText = subtitleParts[1].substring(endIndex + 1);
-                            Component subtitleComponent = Annoucements.parseMessageWithColor("§" + colorCode + subtitleText);
+                            Component subtitleComponent = ColorUtils.parseMessageWithColor("§" + colorCode + subtitleText);
                             ClientboundSetSubtitleTextPacket subtitlePacket = new ClientboundSetSubtitleTextPacket(subtitleComponent);
                             player.connection.send(subtitlePacket);
                             textPart = remainingText;

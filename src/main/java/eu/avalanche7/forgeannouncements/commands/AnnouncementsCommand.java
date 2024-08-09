@@ -1,20 +1,19 @@
-package avalanche7.net.forgeannouncements.commands;
+package eu.avalanche7.forgeannouncements.commands;
 
-import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
-import avalanche7.net.forgeannouncements.utils.Annoucements;
-import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import eu.avalanche7.forgeannouncements.configs.AnnouncementsConfigHandler;
+import eu.avalanche7.forgeannouncements.utils.Announcements;
+import eu.avalanche7.forgeannouncements.utils.ColorUtils;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -25,6 +24,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import java.util.concurrent.TimeUnit;
 
 @Mod.EventBusSubscriber(modid = "forgeannouncements")
@@ -39,8 +39,8 @@ public class AnnouncementsCommand {
             return 0;
         }
 
-        MutableComponent titleComponent = Annoucements.parseMessageWithColor(title);
-        MutableComponent subtitleComponent = subtitle != null ? Annoucements.parseMessageWithColor(subtitle) : null;
+        MutableComponent titleComponent = ColorUtils.parseMessageWithColor(title);
+        MutableComponent subtitleComponent = subtitle != null ? ColorUtils.parseMessageWithColor(subtitle) : null;
 
         source.getServer().getPlayerList().getPlayers().forEach(player -> {
             player.connection.send(new ClientboundClearTitlesPacket(false));
@@ -61,18 +61,9 @@ public class AnnouncementsCommand {
             source.sendFailure(new TextComponent("You do not have permission to use this command."));
             return 0;
         }
-        MutableComponent broadcastMessage = new TextComponent("");
 
-        String[] words = message.split(" ");
-        for (String word : words) {
-            if (word.startsWith("http://") || word.startsWith("https://")) {
-                Style style = Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, word));
-                broadcastMessage.append(" ").append(new TextComponent(word).setStyle(style));
-            } else {
-                MutableComponent coloredWord = Annoucements.parseMessageWithColor(word);
-                broadcastMessage.append(" ").append(coloredWord);
-            }
-        }
+        MutableComponent broadcastMessage = ColorUtils.parseMessageWithColor(message);
+
         int requiredPermissionLevel;
         switch (type) {
             case "broadcast":
@@ -81,41 +72,32 @@ public class AnnouncementsCommand {
                 if (headerFooter) {
                     String header = AnnouncementsConfigHandler.CONFIG.header.get();
                     String footer = AnnouncementsConfigHandler.CONFIG.footer.get();
-                    MutableComponent headerMessage = Annoucements.parseMessageWithColor(header);
-                    MutableComponent footerMessage = Annoucements.parseMessageWithColor(footer);
-                    MutableComponent finalBroadcastMessage = broadcastMessage;
+                    MutableComponent headerMessage = ColorUtils.parseMessageWithColor(header);
+                    MutableComponent footerMessage = ColorUtils.parseMessageWithColor(footer);
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
                         player.sendMessage(headerMessage, Util.NIL_UUID);
-                        player.sendMessage(finalBroadcastMessage, Util.NIL_UUID);
+                        player.sendMessage(broadcastMessage, Util.NIL_UUID);
                         player.sendMessage(footerMessage, Util.NIL_UUID);
                     });
                 } else {
-                    MutableComponent finalBroadcastMessage1 = broadcastMessage;
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
-                        player.sendMessage(finalBroadcastMessage1, Util.NIL_UUID);
+                        player.sendMessage(broadcastMessage, Util.NIL_UUID);
                     });
                 }
                 break;
             case "actionbar":
                 requiredPermissionLevel = PermissionsHandler.ACTIONBAR_PERMISSION_LEVEL;
-                MutableComponent finalBroadcastMessage2 = broadcastMessage;
                 source.getServer().getPlayerList().getPlayers().forEach(player -> {
-                    player.connection.send(new ClientboundSetActionBarTextPacket(finalBroadcastMessage2));
+                    player.connection.send(new ClientboundSetActionBarTextPacket(broadcastMessage));
                 });
                 break;
             case "title":
                 requiredPermissionLevel = PermissionsHandler.TITLE_PERMISSION_LEVEL;
-                int separatorIndex = java.util.Arrays.asList(words).indexOf("-");
-                String title, subtitle;
-                if (separatorIndex == -1 || separatorIndex == 0 || separatorIndex == words.length - 1) {
-                    title = String.join(" ", java.util.Arrays.copyOfRange(words, 0, words.length));
-                    subtitle = "";
-                } else {
-                    title = String.join(" ", java.util.Arrays.copyOfRange(words, 0, separatorIndex));
-                    subtitle = String.join(" ", java.util.Arrays.copyOfRange(words, separatorIndex + 1, words.length));
-                }
-                MutableComponent titleComponent = Annoucements.parseMessageWithColor(title);
-                MutableComponent subtitleComponent = Annoucements.parseMessageWithColor(subtitle);
+                String[] titleParts = message.split(" - ", 2);
+                String title = titleParts[0];
+                String subtitle = titleParts.length > 1 ? titleParts[1] : "";
+                MutableComponent titleComponent = ColorUtils.parseMessageWithColor(title);
+                MutableComponent subtitleComponent = ColorUtils.parseMessageWithColor(subtitle);
                 source.getServer().getPlayerList().getPlayers().forEach(player -> {
                     player.connection.send(new ClientboundClearTitlesPacket(false));
                     player.connection.send(new ClientboundSetTitleTextPacket(titleComponent));
@@ -137,7 +119,7 @@ public class AnnouncementsCommand {
                 source.getServer().getPlayerList().getPlayers().forEach(player -> {
                     bossEvent.addPlayer(player);
                 });
-                Annoucements.scheduler.schedule(() -> {
+                Announcements.scheduler.schedule(() -> {
                     source.getServer().getPlayerList().getPlayers().forEach(player -> {
                         bossEvent.removePlayer(player);
                     });

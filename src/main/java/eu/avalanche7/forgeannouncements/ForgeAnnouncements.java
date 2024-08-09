@@ -1,12 +1,9 @@
-package avalanche7.net.forgeannouncements;
+package eu.avalanche7.forgeannouncements;
 
-import avalanche7.net.forgeannouncements.configs.MOTDConfigHandler;
-import avalanche7.net.forgeannouncements.configs.AnnouncementsConfigHandler;
-import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
-import avalanche7.net.forgeannouncements.configs.RestartConfigHandler;
-import avalanche7.net.forgeannouncements.utils.Mentions;
-import avalanche7.net.forgeannouncements.utils.PermissionsHandler;
-import avalanche7.net.forgeannouncements.utils.Restart;
+import eu.avalanche7.forgeannouncements.configs.*;
+import eu.avalanche7.forgeannouncements.utils.Mentions;
+import eu.avalanche7.forgeannouncements.utils.PermissionsHandler;
+import eu.avalanche7.forgeannouncements.utils.Restart;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -41,11 +38,13 @@ public class ForgeAnnouncements {
         try {
             createDefaultConfigs();
 
+            ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MainConfigHandler.SERVER_CONFIG, "forgeannouncements/main.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, AnnouncementsConfigHandler.SERVER_CONFIG, "forgeannouncements/announcements.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MOTDConfigHandler.SERVER_CONFIG, "forgeannouncements/motd.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MentionConfigHandler.SERVER_CONFIG, "forgeannouncements/mentions.toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, RestartConfigHandler.SERVER_CONFIG, "forgeannouncements/restarts.toml");
 
+            MainConfigHandler.loadConfig(MainConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/main.toml").toString());
             RestartConfigHandler.loadConfig(RestartConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/restarts.toml").toString());
             AnnouncementsConfigHandler.loadConfig(AnnouncementsConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/announcements.toml").toString());
             MOTDConfigHandler.loadConfig(MOTDConfigHandler.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("forgeannouncements/motd.toml").toString());
@@ -60,6 +59,13 @@ public class ForgeAnnouncements {
         Path configDir = FMLPaths.CONFIGDIR.get().resolve("forgeannouncements");
         if (!Files.exists(configDir)) {
             Files.createDirectories(configDir);
+        }
+
+        Path mainConfig = configDir.resolve("main.toml");
+        if (!Files.exists(mainConfig)) {
+            Files.createFile(mainConfig);
+            MainConfigHandler.loadConfig(MainConfigHandler.SERVER_CONFIG, mainConfig.toString());
+            MainConfigHandler.SERVER_CONFIG.save();
         }
 
         Path announcementsConfig = configDir.resolve("announcements.toml");

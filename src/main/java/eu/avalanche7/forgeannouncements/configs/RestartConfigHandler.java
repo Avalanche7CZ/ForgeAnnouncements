@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.configs;
+package eu.avalanche7.forgeannouncements.configs;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -21,7 +21,6 @@ public class RestartConfigHandler {
     }
 
     public static class Config {
-        public final ForgeConfigSpec.ConfigValue<Boolean> debugEnabled;
         public final ForgeConfigSpec.ConfigValue<String> restartType;
         public final ForgeConfigSpec.ConfigValue<Double> restartInterval;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> realTimeInterval;
@@ -39,12 +38,8 @@ public class RestartConfigHandler {
         public final ForgeConfigSpec.ConfigValue<Double> playSoundFirstTime;
 
         public Config(ForgeConfigSpec.Builder builder) {
-            builder.comment("General settings")
-                    .push("general");
-
-            debugEnabled = builder
-                    .comment("Enable debug mode.")
-                    .define("debugEnabled", false);
+            builder.comment("Restart settings")
+                    .push("restart");
 
             restartType = builder
                     .comment("Type of automatic restart (Fixed, Realtime, None).")

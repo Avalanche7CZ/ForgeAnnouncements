@@ -1,6 +1,7 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
-import avalanche7.net.forgeannouncements.configs.MentionConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MainConfigHandler;
+import eu.avalanche7.forgeannouncements.configs.MentionConfigHandler;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,12 @@ public class Mentions {
 
     @SubscribeEvent
     public static void onChatMessage(ServerChatEvent event) {
+
+        if (!MainConfigHandler.CONFIG.mentionsEnable.get()) {
+            DebugLogger.debugLog("Mention feature is disabled.");
+            return;
+        }
+
         String mentionSymbol = MentionConfigHandler.MENTION_SYMBOL.get();
         String message = event.getMessage();
         ServerPlayer sender = event.getPlayer();
@@ -34,7 +41,7 @@ public class Mentions {
                 sender.sendMessage(new TextComponent("You do not have permission to mention everyone."), Util.NIL_UUID);
                 return;
             }
-            System.out.println("Mention everyone detected");
+            DebugLogger.debugLog("Mention everyone detected");
             notifyEveryone(players, sender, message);
             event.setCanceled(true);
         } else {
@@ -47,7 +54,7 @@ public class Mentions {
                         sender.sendMessage(new TextComponent("You do not have permission to mention players."), Util.NIL_UUID);
                         return;
                     }
-                    System.out.println("Mention player detected: " + player.getName().getString());
+                    DebugLogger.debugLog("Mention player detected: " + player.getName().getString());
                     notifyPlayer(player, sender, message);
                     message = message.replaceFirst(mention, "");
                     event.setComponent(new TextComponent(message));

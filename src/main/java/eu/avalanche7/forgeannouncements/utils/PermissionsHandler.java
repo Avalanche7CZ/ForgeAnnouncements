@@ -1,4 +1,4 @@
-package avalanche7.net.forgeannouncements.utils;
+package eu.avalanche7.forgeannouncements.utils;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.DefaultPermissionLevel;
