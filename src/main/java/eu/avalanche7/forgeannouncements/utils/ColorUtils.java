@@ -2,7 +2,6 @@ package eu.avalanche7.forgeannouncements.utils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,7 +9,6 @@ public class ColorUtils {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static final Pattern URL_PATTERN = Pattern.compile("http://\\S+|https://\\S+");
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(\\w+)}");
 
     public static MutableComponent parseMessageWithColor(String rawMessage) {
         rawMessage = rawMessage.replace("&", "§");
@@ -74,21 +72,6 @@ public class ColorUtils {
 
         return message;
     }
-
-    public static MutableComponent replacePlaceholders(String message, Map<String, String> placeholders) {
-        Matcher matcher = PLACEHOLDER_PATTERN.matcher(message);
-        StringBuffer sb = new StringBuffer();
-
-        while (matcher.find()) {
-            String placeholder = matcher.group(1);
-            String replacement = placeholders.getOrDefault(placeholder, "{" + placeholder + "}");
-            matcher.appendReplacement(sb, replacement);
-        }
-        matcher.appendTail(sb);
-
-        return parseMessageWithColor(sb.toString());
-    }
-
     private static boolean isValidHexColor(String hexColor) {
         return hexColor.matches("[A-Fa-f0-9]{6}");
     }
