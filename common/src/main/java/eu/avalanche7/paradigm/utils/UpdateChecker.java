@@ -218,11 +218,12 @@ public final class UpdateChecker {
 
             List<String> params = new ArrayList<>();
             if (mcVersion != null && !mcVersion.isBlank()) {
-                params.add("game_versions=" + URLEncoder.encode(mcVersion, StandardCharsets.UTF_8));
+                params.add("game_versions=" + jsonArrayQueryParameter(mcVersion));
             }
             if (loader != null && !loader.isBlank()) {
-                params.add("loaders=" + URLEncoder.encode(loader, StandardCharsets.UTF_8));
+                params.add("loaders=" + jsonArrayQueryParameter(loader));
             }
+            params.add("include_changelog=false");
             if (!params.isEmpty()) apiUrl.append('?').append(String.join("&", params));
 
             conn = (HttpURLConnection) URI.create(apiUrl.toString()).toURL().openConnection();
@@ -267,6 +268,12 @@ public final class UpdateChecker {
         }
 
         return null;
+    }
+
+    private static String jsonArrayQueryParameter(String value) {
+        JsonArray values = new JsonArray();
+        values.add(value);
+        return URLEncoder.encode(values.toString(), StandardCharsets.UTF_8);
     }
 
     private static boolean matchesLoader(JsonObject obj, String loader) {

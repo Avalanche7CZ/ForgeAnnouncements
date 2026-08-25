@@ -117,7 +117,7 @@ public class Paradigm {
                     new eu.avalanche7.paradigm.utils.UpdateChecker.UpdateConfig(
                             "s4i32SJd",
                             "paradigm",
-                            "https://raw.githubusercontent.com/Avalanche7CZ/Paradigm/NeoForge/1.21.1/version.txt?v=1"
+                            "https://raw.githubusercontent.com/Avalanche7CZ/Paradigm/main/version.txt"
                     ),
                     version,
                     mcVersion,

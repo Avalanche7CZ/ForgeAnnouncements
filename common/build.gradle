@@ -15,7 +15,10 @@ spotless {
     }
 }
 
-def rawCommonVersion = (rootProject.findProperty('mod_version') ?: '0.0.0-dev').toString()
+def rawCommonVersion = rootProject.findProperty('mod_version')?.toString()
+if (rawCommonVersion == null || rawCommonVersion.isBlank()) {
+    throw new GradleException('Root gradle.properties must define mod_version.')
+}
 def commonSemver = rawCommonVersion ==~ /\d+\.\d+\.\d+[A-Za-z].*/
         ? rawCommonVersion.replaceFirst(/(\d+\.\d+\.\d+)([A-Za-z].*)/, '$1-$2')
         : rawCommonVersion

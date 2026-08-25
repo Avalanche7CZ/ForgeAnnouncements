@@ -6,7 +6,6 @@ plugins {
 
 // Ensure properties are available with defaults
 if (!project.hasProperty('mod_group_id')) { project.ext.mod_group_id = project.hasProperty('maven_group') ? project.maven_group : 'eu.avalanche7' }
-if (!project.hasProperty('mod_version')) { project.ext.mod_version = '1.1.0' }
 if (!project.hasProperty('mod_id')) { project.ext.mod_id = 'paradigm' }
 if (!project.hasProperty('mod_name')) { project.ext.mod_name = 'Paradigm' }
 if (!project.hasProperty('mod_authors')) { project.ext.mod_authors = 'Avalanche7' }
@@ -21,10 +20,11 @@ if (!project.hasProperty('mapping_channel')) { project.ext.mapping_channel = 'of
 if (!project.hasProperty('mapping_version')) { project.ext.mapping_version = '1.21.1' }
 if (!project.hasProperty('java_version')) { project.ext.java_version = '21' }
 
-def globalModVersion = rootProject.findProperty('mod_version')
-if (globalModVersion != null && !globalModVersion.toString().isBlank()) {
-    project.ext.mod_version = globalModVersion.toString()
+def globalModVersion = rootProject.findProperty('mod_version')?.toString()
+if (globalModVersion == null || globalModVersion.isBlank()) {
+    throw new GradleException('Root gradle.properties must define mod_version.')
 }
+project.ext.mod_version = globalModVersion
 
 def devPlayerName = (project.findProperty('devPlayerName') ?: 'Developer').toString()
 
@@ -155,7 +155,7 @@ tasks.named('processResources', ProcessResources).configure {
 
 tasks.named('jar', Jar).configure {
     // Keep naming consistent with other distributions
-    // Example: Paradigm-forge-1.21.1-2.0.0-b.jar
+    // Example: Paradigm-forge-<minecraft_version>-<mod_version>.jar
     archiveFileName.set("Paradigm-forge-${project.ext.minecraft_version}-${project.ext.mod_version}.jar")
 
     // Include common module classes/resources directly in the Forge jar (single-jar distribution).

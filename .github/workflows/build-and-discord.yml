@@ -57,11 +57,10 @@ jobs:
           COMMIT_SHORT="${{ github.sha }}"
           COMMIT_SHORT="${COMMIT_SHORT:0:7}"
 
-          # Try to get version from version.txt or use default
-          if [ -f version.txt ]; then
-            VERSION=$(cat version.txt | tr -d '\n')
-          else
-            VERSION="2.4.0b"
+          VERSION=$(sed -nE 's/^mod_version=//p' gradle.properties | head -n1)
+          if [ -z "$VERSION" ]; then
+            echo "mod_version is missing from gradle.properties" >&2
+            exit 1
           fi
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT

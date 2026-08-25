@@ -86,7 +86,7 @@ public class Paradigm implements DedicatedServerModInitializer, ParadigmAPI.Para
                     new eu.avalanche7.paradigm.utils.UpdateChecker.UpdateConfig(
                             "s4i32SJd",
                             "paradigm",
-                            "https://raw.githubusercontent.com/Avalanche7CZ/Paradigm/Fabric/1.20.1/version.txt?v=1"
+                            "https://raw.githubusercontent.com/Avalanche7CZ/Paradigm/main/version.txt"
                     ),
                     getModVersion(),
                     services != null && services.getPlatformAdapter() != null ? services.getPlatformAdapter().getMinecraftVersion() : null,

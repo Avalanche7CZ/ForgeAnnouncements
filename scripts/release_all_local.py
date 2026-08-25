@@ -114,13 +114,22 @@ def build_release_jars(version: str) -> None:
 
 
 def verify_files(matrix: List[dict], release_dir: pathlib.Path) -> None:
-    missing: List[str] = []
-    for item in matrix:
-        p = release_dir / item["artifact"]
-        if not p.exists():
-            missing.append(str(p))
-    if missing:
-        die("Missing release jars:\n" + "\n".join(missing))
+    expected = [str(item["artifact"]) for item in matrix]
+    duplicates = sorted({name for name in expected if expected.count(name) > 1})
+    if duplicates:
+        die("Duplicate release artifacts in matrix:\n" + "\n".join(duplicates))
+
+    actual = {path.name for path in release_dir.glob("*.jar")}
+    expected_set = set(expected)
+    missing = sorted(expected_set - actual)
+    unexpected = sorted(actual - expected_set)
+    if missing or unexpected:
+        details: List[str] = []
+        if missing:
+            details.append("Missing release jars:\n" + "\n".join(missing))
+        if unexpected:
+            details.append("Unexpected release jars not declared in the matrix:\n" + "\n".join(unexpected))
+        die("\n".join(details))
 
 
 def multipart_body(fields: Dict[str, str], file_field: str, file_name: str, file_bytes: bytes) -> Tuple[bytes, str]:
@@ -583,5 +592,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
 
