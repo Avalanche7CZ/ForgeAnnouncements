@@ -20,6 +20,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 
+import eu.avalanche7.paradigm.configs.ConfigEntry;
+import eu.avalanche7.paradigm.configs.MainConfigHandler;
 import eu.avalanche7.paradigm.core.Services;
 import eu.avalanche7.paradigm.platform.Interfaces.IComponent;
 import eu.avalanche7.paradigm.platform.Interfaces.IEventSystem;
@@ -139,6 +141,7 @@ public final class UpdateChecker {
 
     private static void notifyPlayerAboutUpdate(Services services, IPlayer player) {
         if (services == null || player == null) return;
+        if (!inGameNotificationsEnabled(services.getMainConfig())) return;
         if (!isUpdateAvailable()) return;
 
         IPlatformAdapter platform = services.getPlatformAdapter();
@@ -167,6 +170,10 @@ public final class UpdateChecker {
                     .onClickOpenUrl(modrinthUrl);
             platform.sendSystemMessage(player, clickLink);
         }
+    }
+
+    static boolean inGameNotificationsEnabled(MainConfigHandler.Config config) {
+        return config != null && ConfigEntry.valueOf(config.updateChatNotificationsEnable, true);
     }
 
     private static void logResult(Logger logger, UpdateConfig config, String currentVersion, UpdateResult result) {

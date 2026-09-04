@@ -111,6 +111,10 @@ public class MainConfigHandler extends BaseConfigHandler<MainConfigHandler.Confi
                 true,
                 "Enables anonymous telemetry (server count, online players). Sends only anonymized metrics."
         );
+        public ConfigEntry<Boolean> updateChatNotificationsEnable = new ConfigEntry<>(
+                true,
+                "Show update availability messages in chat to server operators when they join. The console update check is unaffected."
+        );
         public ConfigEntry<Integer> telemetryIntervalSeconds = new ConfigEntry<>(
                 300,
                 "Telemetry ping interval in seconds."
